@@ -10,7 +10,7 @@ readme = "README.md"
 authors = [
     {name = "Tiezheng Yuan", email = "tiezhengyuan@hotmail.com"}
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "biopython>=1.85",
     "mysql-connector-python>=9.7.0",
