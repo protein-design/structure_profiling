@@ -7,6 +7,13 @@ pool = {
     # dssp
     'chain_dssp': 'pdb.chain_dssp',
 
+    # fix
+    'chain_fixed': 'dynamics.chain_fixed',
+    'combo2_fixed': 'dynamics.combo2_fixed',
+    'combo3_fixed': 'dynamics.combo3_fixed',
+    'combo4_fixed': 'dynamics.combo4_fixed',
+    'combo5_fixed': 'dynamics.combo5_fixed',
+
     # relax
     'chain_relaxed': 'dynamics.chain_relaxed',
     'combo2_relaxed': 'dynamics.combo2_relaxed',

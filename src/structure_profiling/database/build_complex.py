@@ -12,6 +12,12 @@ TABLE_COLUMNS = {
     # dssp
     'chain_dssp': ['pdb_id', 'chain_id', 'host', 'model_no',
         'chain_no', 'dssp_seq',],
+    # fix
+    'chain_fixed': ['pdb_id', 'chain_id', 'fixed_pdb',],
+    'combo2_fixed': ['pdb_id', 'combo_id', 'fixed_pdb',],
+    'combo3_fixed': ['pdb_id', 'combo_id', 'fixed_pdb',],
+    'combo4_fixed': ['pdb_id', 'combo_id', 'fixed_pdb',],
+    'combo5_fixed': ['pdb_id', 'combo_id', 'fixed_pdb',],
     # relax
     'chain_relaxed': ['pdb_id', 'chain_id', 'relaxed_pdb',
         'original_energy', 'relaxed_energy',],

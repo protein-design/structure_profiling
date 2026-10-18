@@ -10,13 +10,16 @@ predicted/backbone geometry.
 ## Layout
 
 ```
-sql/                     MySQL schemas (chain_dssp, chain_relaxed, combo*_relaxed, pdb_qc, pdb_relaxed_qc)
+sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo*_fixed, combo*_relaxed, pdb_qc, pdb_relaxed_qc)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
 ├── pipelines/
 │   ├── pdb/chain_dssp.py             DSSP assignment per chain
 │   └── dynamics/
+│       ├── chain_fixed.py            fix missing atoms/side chains (pdbfixer)
+│       ├── func_fixed.py             shared fix helpers (combo2..5 reuse it)
+│       ├── combo2..5_fixed.py        fix chain combos
 │       ├── chain_relaxed.py          relax one chain (OpenMM)
 │       ├── func_relaxed.py           shared relax helpers (combo2..5 reuse it)
 │       ├── combo2..5_relaxed.py      relax chain combos
@@ -54,6 +57,8 @@ Run a pipeline (same style as bio_omics `bomics`):
 
 ```sh
 sp chain_dssp 0
+sp chain_fixed 0
+sp combo2_fixed 0
 sp chain_relaxed 0
 sp pdb_qc 0
 sp pdb_relaxed_qc 0

@@ -24,3 +24,19 @@ class QueryComplex(QueryDb):
         if len(res) > 0:
             return res[0]['pdb_group']
         return None
+
+    def retrieve_combo(self, pdb_group:int, combo:int, dest_table_name:str):
+        query = f"""
+            SELECT c.pdb_id, c.combo_id, c.combo_pdb
+            FROM combo{combo}  c
+            LEFT JOIN meta_pdb p ON c.pdb_id = p.pdb_id
+            WHERE p.pdb_group = {pdb_group}
+                AND c.combo_pdb IS NOT NULL
+                AND c.combo_id NOT IN (
+                    SELECT combo_id FROM {dest_table_name}
+                )
+        ;"""
+        rows = self.list_data(query)
+        if self.verbose:
+            print(f"{len(rows)} PDB files ready...")
+        return rows
