@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "structure-profiling"
+version = "0.1.0"
+description = "Profiling of protein structures: DSSP secondary structure assignment, OpenMM relaxation and QC screening"
+readme = "README.md"
+authors = [
+    {name = "Tiezheng Yuan", email = "tiezhengyuan@hotmail.com"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "biopython>=1.85",
+    "mysql-connector-python>=9.7.0",
+    "numpy>=1.26",
+    "openmm>=8.5.2",
+    "pandas>=2.2",
+    "pdbfixer",
+    "python-dotenv>=1.2.2",
+]
+
+[dependency-groups]
+dev = [
+    "ipython>=9.0.0",
+    "mypy>=1.16.0",
+    "pytest>=9.1.1",
+    "ruff>=0.12.0",
+    "ddt>=1.7.2",
+]
+
+[tool.uv.sources]
+pdbfixer = { git = "https://github.com/openmm/pdbfixer.git" }
+
+[tool.uv]
+package = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.scripts]
+sp = "app.main:main"
