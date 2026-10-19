@@ -3,7 +3,7 @@
 requirements:
     - chain is labelled in table label_chain
 example:
-    - parallel -j8 sp chain_fixed ::: {0..241}
+    - parallel -j8 sp chain_fixed ::: {0..258}
     - sp chain_fixed 0
 function:
     - fix pdb files

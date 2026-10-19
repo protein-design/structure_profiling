@@ -3,7 +3,7 @@
 requirements:
     - table combo4_fixed
 example:
-    - parallel -j8 bomics combo4_relaxed ::: {0..241}
+    - parallel -j8 bomics combo4_relaxed ::: {0..258}
     - bomics combo4_relaxed 0
 function:
     - relax pdb

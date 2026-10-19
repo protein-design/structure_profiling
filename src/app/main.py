@@ -28,6 +28,7 @@ pool = {
     'combo5_relaxed': 'dynamics.combo5_relaxed',
 
     # qc
+    'chain_clashes': 'qc.chain_clashes',
     'pdb_qc': 'dynamics.pdb_qc',
     'pdb_relaxed_qc': 'dynamics.pdb_relaxed_qc',
 }

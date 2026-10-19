@@ -3,7 +3,7 @@
 requirements:
     - table combo5
 example:
-    - parallel -j8 bomics combo5_fixed ::: {0..241}
+    - parallel -j8 bomics combo5_fixed ::: {0..258}
     - bomics combo5_fixed 0
 function:
     - fix pdb files

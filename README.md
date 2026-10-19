@@ -10,7 +10,7 @@ relaxation of fixed structures and QC screening of predicted/backbone geometry.
 ## Layout
 
 ```
-sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, pdb_qc, pdb_relaxed_qc)
+sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, pdb_qc, pdb_relaxed_qc)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
@@ -28,10 +28,12 @@ src/
 │       ├── combo2..5_relaxed.py      relax chain combos
 │       ├── pdb_qc.py                 QC screening of structures
 │       └── pdb_relaxed_qc.py         QC screening of relaxed structures
+│   ├── qc/
+│   │   └── chain_clashes.py            steric / MolProbity vdW clash metrics per chain
 └── structure_profiling/
     ├── common/          ProcessJson, ProcessSeq (colabfold csv/fasta export), WriteTmp (rsync tmp dir)
     ├── database/        MySQL layer (Db, Insert/Query/Delete/Update + *Complex)
-    ├── structure/       Pdb parser (incl. to_chain_pdb), atom_select, AnalyzeDssp
+    ├── structure/       Pdb parser (incl. to_chain_pdb), atom_select, AnalyzeDssp, Clashes
     ├── geometry/        Geometry, GeometryDistance, GeometryAngle, RamaGrid
     ├── qc/              StructureQC screening
     └── relax/           timeout, OpenmmPdbfixer, OpenmmSimulation
@@ -64,6 +66,7 @@ sp combo2 0
 sp chain_fixed 0
 sp combo2_fixed 0
 sp chain_relaxed 0
+sp chain_clashes 0
 sp pdb_qc 0
 sp pdb_relaxed_qc 0
 ```
@@ -81,6 +84,7 @@ Create the tables once per database:
 ```sh
 mysql COMPLEX2 < sql/pdb.sql
 mysql COMPLEX2 < sql/simulate.sql
+mysql COMPLEX2 < sql/qc.sql
 ```
 
 ## Tests

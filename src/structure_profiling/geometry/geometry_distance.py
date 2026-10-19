@@ -1,17 +1,24 @@
 '''Distance-based protein geometry QC for one Bio.PDB chain.
 
 Covers standard residues / heavy atoms, missing backbone atoms, Ca-Ca and
-peptide C-N distances, radius of gyration, steric clashes, covalent bond
-length Z-scores (Engh & Huber style, |Z| > 5 outlier), MolProbity-style
-Cb deviation and MolProbity-style vdW-overlap clash score.
+peptide C-N distances, radius of gyration, covalent bond
+length Z-scores (Engh & Huber style, |Z| > 5 outlier) and MolProbity-style
+Cb deviation.
+
+Clash analysis (steric clashes, MolProbity-style vdW-overlap clash score)
+is collected in structure/clashes.py (Clashes); the methods and
+module-level functions below delegate to it for backward compatibility.
 '''
 import pandas as pd
 from Bio import PDB
 import numpy as np
 from pathlib import Path
 
+from ..structure.clashes import Clashes
+
 class GeometryDistance:
-    severe_clash_distance:float = 2.0  # A; contacts below are severe clashes
+    # canonical clash cutoffs live in Clashes (structure/clashes.py)
+    severe_clash_distance:float = Clashes.severe_clash_distance
 
     # ideal backbone bond lengths (mean, sd) in A, Engh & Huber style (cf.
     # wwPDB standard-geometry compilation). Keys are sorted atom-name pairs.
@@ -188,47 +195,20 @@ class GeometryDistance:
         '''
         steric clashes: non-bonded heavy-atom contacts closer than cutoff (A).
 
+        Moved to Clashes.steric_clashes (structure/clashes.py); this
+        delegate keeps the GeometryDistance API used by Geometry.run()
+        and qc_screen.
+
         Cutoffs: cutoff=2.4 A fixed distance (heuristic); contacts below
-        severe_clash_distance=2.0 A are counted severe in Geometry.run();
-        clash_score (per 1000 atoms) fails check() above 30.0.
+        severe_clash_distance=2.0 A are counted severe (Clashes.severe_clashes);
+        clash_score (per 1000 atoms) fails Clashes.check() above 30.0.
 
         covalently bonded atoms are not clashes: pairs inside one residue,
         between sequential residues (i, i+1) and disulfide SG-SG bonds are
         excluded. hydrogens and hetero / water atoms are ignored.
         returns DataFrame(atom_pos, atom, other_pos, other_atom, distance).
         '''
-        columns = ['atom_pos', 'atom', 'other_pos', 'other_atom', 'distance']
-        atoms = self.heavy_atoms()
-        if len(atoms) < 2:
-            return pd.DataFrame(columns=columns)
-        ns = PDB.NeighborSearch(atoms)
-        seen, clashes = set(), []
-        for atom in atoms:
-            for other in ns.search(atom.coord, cutoff, level="A"):
-                if atom is other:
-                    continue
-                key = tuple(sorted((
-                    atom.get_serial_number(), other.get_serial_number()
-                )))
-                if key in seen:
-                    continue
-                seen.add(key)
-                pos = atom.get_full_id()[3][1]
-                other_pos = other.get_full_id()[3][1]
-                if pos == other_pos:
-                    continue                      # 1-2 / 1-3 bonds, same residue
-                if abs(pos - other_pos) == 1:
-                    continue                      # peptide-bond neighbours
-                if atom.get_name() == 'SG' and other.get_name() == 'SG':
-                    continue                      # disulfide bond
-                clashes.append({
-                    'atom_pos': pos,
-                    'atom': atom.get_full_id()[4][0],
-                    'other_pos': other_pos,
-                    'other_atom': other.get_full_id()[4][0],
-                    'distance': float(np.linalg.norm(atom.coord - other.coord)),
-                })
-        return pd.DataFrame(clashes, columns=columns)
+        return Clashes(self.chain).steric_clashes(cutoff)
 
     @staticmethod
     def _bond_z(name1:str, coord1, name2:str, coord2):
@@ -328,32 +308,35 @@ class GeometryDistance:
                     include_hydrogen: bool = True) -> pd.DataFrame:
         '''MolProbity-style vdW-overlap clashes for this chain.
 
+        Moved to Clashes.vdw_clashes (structure/clashes.py); delegate.
+
         Cutoff: overlap_cut=0.40 A on vdW overlap (r_i + r_j - d_ij;
         VDW_OVERLAP_CUT, MolProbity definition); radii from VDW_RADII.
         '''
-        return vdw_clashes(self.chain, radii=radii,
-                           overlap_cut=overlap_cut,
-                           include_hydrogen=include_hydrogen)
+        return Clashes(self.chain).vdw_clashes(radii=radii,
+                                               overlap_cut=overlap_cut,
+                                               include_hydrogen=include_hydrogen)
 
     def vdw_clash_score(self, clashes: pd.DataFrame,
                         n_atoms: int = None) -> dict:
         '''Clash score (per 1000 atoms) for a vdw_clashes() table.
 
+        Moved to Clashes.vdw_clash_score (structure/clashes.py); delegate.
+
         Cutoff: MolProbity clashscore bands (<5 very good, 5-10 acceptable,
         10-20 investigate, >20 poor); Geometry.check() analogue fails above
         clash_score_cutoff=30.0.
         '''
-        return vdw_clash_score(clashes, self.chain, n_atoms=n_atoms)
+        return Clashes(self.chain).vdw_clash_score(clashes, n_atoms=n_atoms)
 
 
 # ===========================================================================
 # MolProbity-style van-der-Waals clash score
+# (implemented in structure/clashes.py; aliases kept for backward compat)
 # ===========================================================================
 
-# non-hydrogen vdW radii (A); H (1.0 A) scored only when present / added
-VDW_RADII = {'C': 1.70, 'N': 1.55, 'O': 1.52, 'S': 1.80,
-             'P': 1.80, 'SE': 1.90, 'H': 1.00}
-VDW_OVERLAP_CUT = 0.40      # A; MolProbity flags overlap >= 0.4 A
+VDW_RADII = Clashes.VDW_RADII
+VDW_OVERLAP_CUT = Clashes.VDW_OVERLAP_CUT
 
 
 def add_hydrogens_pdbfixer(pdb_file, out_file=None, ph=7.0):
@@ -378,73 +361,27 @@ def add_hydrogens_pdbfixer(pdb_file, out_file=None, ph=7.0):
     return Path(out_file)
 
 
-def _radius(atom, radii):
-    el = (atom.element or 'C').upper()
-    return radii.get(el, 1.70)
-
-
 def vdw_clashes(chain, radii=None, overlap_cut: float = VDW_OVERLAP_CUT,
                 include_hydrogen: bool = True) -> pd.DataFrame:
     '''vdW-overlap clashes for one chain (MolProbity definition).
+
+    Moved to Clashes.vdw_clashes (structure/clashes.py); module-level
+    delegate keeps the old function API.
 
     Cutoff: overlap_cut=0.40 A (VDW_OVERLAP_CUT) on overlap =
     (r_i + r_j) - d_ij; same-residue, sequential (i, i+1) and SG-SG
     disulfide pairs excluded.
     '''
-    radii = radii or VDW_RADII
-    cols = ['atom_pos', 'atom', 'element', 'other_pos', 'other_atom',
-            'other_element', 'distance', 'overlap']
-    atoms = [a for r in GeometryDistance(chain).standard_residues()
-             for a in r if (a.element or '').upper() in radii
-             and (include_hydrogen or (a.element or '').upper() != 'H')]
-    if len(atoms) < 2:
-        return pd.DataFrame(columns=cols)
-    search_cut = 2.0 * max(radii.values())     # generous spatial cutoff
-    ns = PDB.NeighborSearch(atoms)
-    seen, clashes = set(), []
-    for atom in atoms:
-        for other in ns.search(atom.coord, search_cut, level='A'):
-            if atom is other:
-                continue
-            key = tuple(sorted((atom.get_serial_number(),
-                                other.get_serial_number())))
-            if key in seen:
-                continue
-            seen.add(key)
-            pos = atom.get_full_id()[3][1]
-            other_pos = other.get_full_id()[3][1]
-            if pos == other_pos:
-                continue                        # 1-2 / 1-3 bonds
-            if abs(pos - other_pos) == 1:
-                continue                        # peptide-bond neighbours
-            if atom.get_name() == 'SG' and other.get_name() == 'SG':
-                continue                        # disulfide
-            d = float(np.linalg.norm(atom.coord - other.coord))
-            overlap = _radius(atom, radii) + _radius(other, radii) - d
-            if overlap >= overlap_cut:
-                clashes.append([
-                    pos,
-                    atom.get_full_id()[4][0],
-                    (atom.element or '').upper(),
-                    other_pos,
-                    other.get_full_id()[4][0],
-                    (other.element or '').upper(), d, overlap
-                ])
-    return pd.DataFrame(clashes, columns=cols)
+    return Clashes(chain).vdw_clashes(radii=radii, overlap_cut=overlap_cut,
+                                      include_hydrogen=include_hydrogen)
 
 
 def vdw_clash_score(clashes: pd.DataFrame, chain, n_atoms: int = None):
     '''clashes per 1000 atoms and overlap stats (MolProbity clashscore).
 
+    Moved to Clashes.vdw_clash_score (structure/clashes.py); delegate.
+
     Cutoff: clashscore bands <5 very good / 5-10 acceptable / 10-20
     investigate / >20 poor; 0 means no serious overlaps found.
     '''
-    heavy = n_atoms or len(GeometryDistance(chain).heavy_atoms())
-    if heavy == 0:
-        return {'clash_score': 0.0, 'n_clashes': 0, 'max_overlap': 0.0}
-    return {
-        'clash_score': round(1000.0 * len(clashes) / heavy, 2),
-        'n_clashes': len(clashes),
-        'max_overlap': round(float(clashes['overlap'].max()), 3)
-        if not clashes.empty else 0.0,
-    }
+    return Clashes(chain).vdw_clash_score(clashes, n_atoms=n_atoms)

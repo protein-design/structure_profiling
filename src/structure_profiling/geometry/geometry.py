@@ -44,17 +44,17 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from ..structure import Pdb
+from ..structure import Pdb, Clashes
 from .geometry_distance import GeometryDistance
 from .geometry_angle import GeometryAngle
 
 class Geometry(Pdb):
-    # steric clash QC thresholds
-    clash_score_cutoff:float = 30.0    # max clashes per 1000 heavy atoms
-    severe_clash_distance:float = 2.0  # A; contacts below are severe clashes
+    # steric clash QC thresholds (canonical values live in Clashes)
+    clash_score_cutoff:float = Clashes.clash_score_cutoff
+    severe_clash_distance:float = Clashes.severe_clash_distance
     # MolProbity clashscore bands (vdw_clash_score): <5 very good,
     # 5-10 acceptable, 10-20 investigate, >20 poor
-    vdw_clash_cutoff:float = 20.0
+    vdw_clash_cutoff:float = Clashes.vdw_clash_cutoff
 
 
     def __init__(self, pdb_file:Path, is_backbone:bool=False):

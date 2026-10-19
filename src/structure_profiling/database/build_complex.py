@@ -53,6 +53,10 @@ TABLE_COLUMNS = {
         'num_missing', 'num_strained', 'num_servere_clashes',
         'pep_max_dist', 'peptide_outlier_frac', 'rama_outlier_frac',
         'vdw_clash_score', 'z_outlier_frac',],
+    # clashes (pipelines/qc/chain_clashes.py, src/sql/qc.sql)
+    'chain_clashes': ['pdb_id', 'chain_id', 'n_heavy_atoms',
+        'num_clashes', 'num_severe_clashes', 'clash_score',
+        'n_vdw_clashes', 'vdw_clash_score', 'max_overlap', 'host',],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],

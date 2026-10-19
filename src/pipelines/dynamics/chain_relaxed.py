@@ -3,7 +3,7 @@
 requirements:
     - chain is labelled in table label_chain
 example:
-    - parallel -j8 bomics chain_relaxed ::: {0..241}
+    - parallel -j8 bomics chain_relaxed ::: {0..258}
     - bomics chain_relaxed 0
 function:
     - relax pdb

@@ -3,7 +3,7 @@
 requirements:
     - The table label_complex is ready.
 example:
-    - parallel -j8 sp combo3 ::: {0..241}
+    - parallel -j8 sp combo3 ::: {0..258}
     - sp combo3 0
 function:
     - split PDB of complex to paired chains PDB.
