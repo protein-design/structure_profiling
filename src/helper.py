@@ -38,6 +38,8 @@ params = {
     'verbose': True if os.getenv('verbose') == 'true' else False,
     'output_dir': Path(os.getenv('output_dir')),
     'tmp_dir': Path(os.getenv('tmp_dir', os.getenv('output_dir'))),
+    # raw data shared with bio_omics, needed by the combo2..5 split pipelines
+    'rawdata_dir': Path(os.getenv('rawdata_dir', os.getenv('output_dir'))),
 }
 params['output_pdb_dir'] = params['output_dir'] / 'pdb'
 params['simulate_dir'] = params['output_dir'] / 'simulate'

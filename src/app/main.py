@@ -4,8 +4,14 @@ import sys
 import subprocess
 
 pool = {
-    # dssp
+    # pdb
     'chain_dssp': 'pdb.chain_dssp',
+
+    # pdb: split complex into chain combos
+    'combo2': 'pdb.combo2',
+    'combo3': 'pdb.combo3',
+    'combo4': 'pdb.combo4',
+    'combo5': 'pdb.combo5',
 
     # fix
     'chain_fixed': 'dynamics.chain_fixed',

@@ -3,19 +3,22 @@
 protein structure profiling for references in protein design
 
 Standalone toolkit decoupled from
-[bio_omics](https://github.com/tiezhengyuan/bio_omics): secondary structure
-assignment (DSSP), OpenMM relaxation of fixed structures and QC screening of
-predicted/backbone geometry.
+[bio_omics](https://github.com/tiezhengyuan/bio_omics): split of protein
+complexes into chain combos, secondary structure assignment (DSSP), OpenMM
+relaxation of fixed structures and QC screening of predicted/backbone geometry.
 
 ## Layout
 
 ```
-sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo*_fixed, combo*_relaxed, pdb_qc, pdb_relaxed_qc)
+sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, pdb_qc, pdb_relaxed_qc)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
 ├── pipelines/
-│   ├── pdb/chain_dssp.py             DSSP assignment per chain
+│   ├── pdb/
+│   │   ├── chain_dssp.py             DSSP assignment per chain
+│   │   ├── func_combo.py             shared combo helpers (combo2..5 reuse it)
+│   │   └── combo2..5.py              split complexes into chain combos (csv/fasta/pdb export)
 │   └── dynamics/
 │       ├── chain_fixed.py            fix missing atoms/side chains (pdbfixer)
 │       ├── func_fixed.py             shared fix helpers (combo2..5 reuse it)
@@ -26,9 +29,9 @@ src/
 │       ├── pdb_qc.py                 QC screening of structures
 │       └── pdb_relaxed_qc.py         QC screening of relaxed structures
 └── structure_profiling/
-    ├── common/          ProcessJson, WriteTmp (rsync tmp dir)
+    ├── common/          ProcessJson, ProcessSeq (colabfold csv/fasta export), WriteTmp (rsync tmp dir)
     ├── database/        MySQL layer (Db, Insert/Query/Delete/Update + *Complex)
-    ├── structure/       Pdb parser, AnalyzeDssp
+    ├── structure/       Pdb parser (incl. to_chain_pdb), atom_select, AnalyzeDssp
     ├── geometry/        Geometry, GeometryDistance, GeometryAngle, RamaGrid
     ├── qc/              StructureQC screening
     └── relax/           timeout, OpenmmPdbfixer, OpenmmSimulation
@@ -57,6 +60,7 @@ Run a pipeline (same style as bio_omics `bomics`):
 
 ```sh
 sp chain_dssp 0
+sp combo2 0
 sp chain_fixed 0
 sp combo2_fixed 0
 sp chain_relaxed 0
@@ -66,6 +70,11 @@ sp pdb_relaxed_qc 0
 
 `0` is the `pdb_group` to process; when omitted it is auto-assigned from the
 `meta_execute` table.
+
+The `combo2..5` split pipelines need `label_complex`, `meta_pdb`, `pdb_chain_seq`
+and `chain_pdb` filled by bio_omics, plus the `rawdata_dir` env var pointing at
+the shared directory of downloaded PDB files (`meta_pdb.relative_pdb`). Their
+output feeds the `combo2..5_fixed` / `combo2..5_relaxed` pipelines.
 
 Create the tables once per database:
 

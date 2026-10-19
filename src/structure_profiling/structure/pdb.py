@@ -3,7 +3,7 @@ process PDB structure: loading and chain access
 Decoupled from bio_omics (bioomics.PDB.pdb / parse_structure):
 only the parsing used by structure profiling is kept.
 '''
-from Bio.PDB import PDBParser, MMCIFParser
+from Bio.PDB import PDBIO, PDBParser, MMCIFParser
 import gzip
 from pathlib import Path
 
@@ -11,6 +11,8 @@ from pathlib import Path
 import warnings
 from Bio.PDB.PDBExceptions import PDBConstructionWarning
 warnings.simplefilter("ignore", PDBConstructionWarning)
+
+from .atom_select import ChainAtomSelect, LigandAtomSelect, AllAtomSelect
 
 
 class ParseStructure:
@@ -94,3 +96,46 @@ class Pdb(ParseStructure):
             print(f"Error: {self.pdb_file} is invalid. error={e}")
             self.structure = []
             self.structure_id = None
+
+    def header_lines(self):
+        header_lines = []
+        if self.pdb_file.suffix == '.gz':
+            with gzip.open(self.pdb_file, 'rt') as f:
+                for line in f:
+                    if line.startswith(("HEADER", "TITLE", "COMPND", "SOURCE")):
+                        header_lines.append(line)
+        else:
+            with open(self.pdb_file, 'r') as f:
+                for line in f:
+                    if line.startswith(("HEADER", "TITLE", "COMPND", "SOURCE")):
+                        header_lines.append(line)
+        return header_lines
+
+    def to_chain_pdb(self, model_no:int, chain_no_pool:list, outfile):
+        """
+        Save chain while preserving original header information
+        Decoupled from bio_omics (bioomics.PDB.pdb) for the combo2..5 pipelines.
+        """
+        try:
+            # Write output with header
+            io = PDBIO(use_model_flag=model_no)
+            io.set_structure(self.structure)
+            # selector
+            _ids = ''.join(chain_no_pool)
+            atom_selector = ChainAtomSelect
+            if '-' in _ids:
+                atom_selector = LigandAtomSelect
+            elif '+' in _ids:
+                atom_selector = AllAtomSelect
+
+            # Copy header from original file
+            header_lines = self.header_lines()
+            with open(outfile, "w") as f:
+                f.writelines(header_lines)
+                io.save(f, atom_selector(chain_no_pool))
+            if self.verbose:
+                print(f"Saved chain {chain_no_pool} to {outfile}")
+            return True
+        except Exception as e:
+            print(f'Error: can not extract chain {chain_no_pool} from {self.structure_id}, error={e}')
+        return False

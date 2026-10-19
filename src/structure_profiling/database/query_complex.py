@@ -4,6 +4,9 @@ Subset of bio_omics bioomics.database.query_complex: only the queries
 used by the structure profiling pipelines are kept.
 '''
 import os
+
+import pandas as pd
+
 from .query_db import QueryDb
 
 class QueryComplex(QueryDb):
@@ -40,3 +43,27 @@ class QueryComplex(QueryDb):
         if self.verbose:
             print(f"{len(rows)} PDB files ready...")
         return rows
+
+    def pdb_chains(self, pdb_group:int) -> dict:
+        '''
+        used by the combo2..5 split pipelines
+        '''
+        query = f"""
+            SELECT c.pdb_id, c.model_no, c.chain_id, d.relative_pdb,
+                s.relative_faa AS chain_faa, s.chain_seq
+            FROM pdb_chainid        c
+            LEFT JOIN meta_pdb      p ON c.pdb_id=p.pdb_id
+            LEFT JOIN pdb_chain_seq s ON c.chain_id=s.chain_id
+            LEFT JOIN chain_pdb     d ON c.chain_id=d.chain_id
+            WHERE p.pdb_group = {pdb_group}
+                AND c.model_no = 0
+                AND s.pro_len >= 3
+                AND s.relative_faa IS NOT NULL
+                AND d.relative_pdb IS NOT NULL
+        ;"""
+        rows = self.list_data(query)
+        df = pd.DataFrame(rows)
+        if not df.empty:
+            g = df.groupby(['pdb_id', 'model_no'])
+            return {key: sub for key, sub in g}
+        return {}

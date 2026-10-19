@@ -1,4 +1,4 @@
-from .common import ProcessJson, WriteTmp
+from .common import ProcessJson, ProcessSeq, WriteTmp
 from .structure import Pdb, AnalyzeDssp
 from .geometry import Geometry, GeometryDistance, GeometryAngle, RamaGrid
 from .qc import backbone_qc_screen, structure_qc_screen

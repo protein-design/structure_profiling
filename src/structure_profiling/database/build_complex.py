@@ -9,6 +9,15 @@ from .delete_db import DeleteDb
 
 # build SQL query string
 TABLE_COLUMNS = {
+    # split complex into chain combos (combo2..5)
+    'combo2': ['pdb_id', 'combo_id', 'chain_combo', 'chain_pdbs',
+        'combo_pdb', 'combo_csv', 'combo_fasta'],
+    'combo3': ['pdb_id', 'combo_id', 'chain_combo', 'chain_pdbs',
+        'combo_pdb', 'combo_csv', 'combo_fasta'],
+    'combo4': ['pdb_id', 'combo_id', 'chain_combo', 'chain_pdbs',
+        'combo_pdb', 'combo_csv', 'combo_fasta'],
+    'combo5': ['pdb_id', 'combo_id', 'chain_combo', 'chain_pdbs',
+        'combo_pdb', 'combo_csv', 'combo_fasta'],
     # dssp
     'chain_dssp': ['pdb_id', 'chain_id', 'host', 'model_no',
         'chain_no', 'dssp_seq',],
