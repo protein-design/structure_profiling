@@ -18,8 +18,8 @@ def search_pdb(params, meta):
     pdb_group = params['pdb_group']
     table_name = params['table_name']
     query = f"""
-        SELECT c.pdb_id, c.chain_id, c.chain_pdb
-        FROM chain_pdb          c
+        SELECT c.pdb_id, c.chain_id, c.relative_pdb
+        FROM chain_pdb c
         LEFT JOIN meta_pdb      m ON c.pdb_id = m.pdb_id
         LEFT JOIN pdb_chain_seq s ON c.chain_id = s.chain_id
         LEFT JOIN pdb_chainid   i ON c.chain_id = i.chain_id
@@ -33,7 +33,7 @@ def search_pdb(params, meta):
     rows = QueryComplex(params['verbose']).list_data(query)
     meta['rows'] = len(rows)
     for row in rows:
-        pdb_file = params['output_pdb_dir'] / row['chain_pdb']
+        pdb_file = params['output_pdb_dir'] / row['relative_pdb']
         if pdb_file.is_file():
             row['pdb_file'] = pdb_file
             yield row
@@ -54,12 +54,18 @@ def pdb_dssp(row_iter, params, meta):
                 for chain_no, dssp in dssp_data.items():
                     item['chain_no'] = chain_no
                     item['dssp_seq'] = ''.join([i['dssp_code'] for i in dssp])
-                    meta['records'] += 1
                     break
                 break
         except Exception as e:
             print(f"ERROR: Fail in pdb_secondary(). error={e}")
             meta['fail'] += 1
+            continue
+        if 'dssp_seq' not in item:
+            # no dssp data produced, e.g. mkdssp failure or unparsable file:
+            # skip so the chain can be retried in a later run
+            meta['fail'] += 1
+            continue
+        meta['records'] += 1
         rec = [item.get(col) for col in cols]
         yield tuple(rec)
 

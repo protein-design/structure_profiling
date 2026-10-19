@@ -1,3 +1,4 @@
+import locale
 import pandas as pd
 from Bio.PDB.DSSP import DSSP
 from .pdb import Pdb
@@ -18,15 +19,38 @@ class AnalyzeDssp(Pdb):
     def __init__(self, pdb_file:str, outdir:str=None, verbose:bool=False):
         super().__init__(pdb_file, outdir, verbose)
         self.load_structure()
-    
+
+    @staticmethod
+    def ensure_utf8_ctype():
+        '''
+        native libraries loaded earlier in the same process (e.g. OpenMM)
+        may switch the C locale to plain "C"/POSIX. Biopython then decodes
+        the mkdssp output as ascii and crashes with UnicodeDecodeError on
+        the non-ascii bytes emitted by dssp 4.x. Restore a UTF-8 LC_CTYPE
+        when the current one cannot handle them.
+        '''
+        try:
+            current = locale.setlocale(locale.LC_CTYPE, None)
+            if current.lower() not in ('c', 'posix', 'ansi_x3.4-1968'):
+                return
+            for candidate in ('C.UTF-8', 'en_US.UTF-8', 'UTF-8'):
+                try:
+                    locale.setlocale(locale.LC_CTYPE, candidate)
+                    return
+                except locale.Error:
+                    continue
+        except Exception:
+            pass
+
     def dssp_iter(self):
         for model in self.structure:
             try:
+                self.ensure_utf8_ctype()
                 dssp = DSSP(model, self.pdb_file)
                 dssp_data = self.parse_dssp(dssp)
                 yield model, dssp_data
             except Exception as e:
-                pass
+                print(f"ERROR: DSSP failed for {self.pdb_file}. error={e}")
 
     def parse_dssp(self, dssp):
         res = {}
