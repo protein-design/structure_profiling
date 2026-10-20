@@ -37,6 +37,21 @@ CREATE TABLE chain_breaks(
         REFERENCES pdb(pdb_id) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS chain_fixed_breaks;
+CREATE TABLE chain_fixed_breaks(
+    pdb_id              VARCHAR(10),
+    chain_id            VARCHAR(20) PRIMARY KEY,
+    n_residues          INT,
+    num_missing         INT,
+    num_breaks          INT,
+    num_fragments       INT,
+    num_strained        INT,
+    ca_max_dist         FLOAT,
+    pep_max_dist        FLOAT,
+    CONSTRAINT fk_chainfixedbreaks_pdb FOREIGN KEY (pdb_id)
+        REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
+
 /* backbone torsion / bond-angle QC of chains (pipelines/qc/chain_torsions.py).
    Cutoffs live in qc/torsions.py (Torsions):
    Z_OUTLIER_CUT=5, CIS_CUT=90 deg, OMEGA_DEV_CUT=30 deg,

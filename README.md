@@ -29,6 +29,7 @@ src/
 │   ├── qc/
 │   │   ├── chain_clashes.py           steric / MolProbity vdW clash metrics per chain
 │   │   ├── chain_breaks.py            chain continuity (missing atoms, breaks, strain)
+│   │   ├── chain_fixed_breaks.py      chain continuity of fixed chains (input table chain_fixed)
 │   │   ├── chain_torsions.py          torsions, bond-angle Z, Ramachandran, planarity
 │   │   ├── chain_bonds.py             covalent bond-length Z metrics
 │   │   ├── chain_cbeta.py             Cbeta-deviation metrics
@@ -72,6 +73,7 @@ sp combo2_fixed 0
 sp chain_relaxed 0
 sp chain_clashes 0
 sp chain_breaks 0
+sp chain_fixed_breaks 0
 ```
 
 `sp test_env` takes no group: it reports python and dependency versions, the

@@ -49,6 +49,11 @@ TABLE_COLUMNS = {
     'chain_breaks': ['pdb_id', 'chain_id', 'n_residues',
         'num_missing', 'num_breaks', 'num_fragments', 'num_strained',
         'ca_max_dist', 'pep_max_dist',],
+    # chain breaks / continuity of fixed chains
+    # (pipelines/qc/chain_fixed_breaks.py, src/sql/qc.sql)
+    'chain_fixed_breaks': ['pdb_id', 'chain_id', 'n_residues',
+        'num_missing', 'num_breaks', 'num_fragments', 'num_strained',
+        'ca_max_dist', 'pep_max_dist',],
     # chain torsions / bond angles (pipelines/qc/chain_torsions.py,
     # src/sql/qc.sql)
     'chain_torsions': ['pdb_id', 'chain_id', 'n_residues',
