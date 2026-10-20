@@ -61,6 +61,14 @@ TABLE_COLUMNS = {
     'chain_breaks': ['pdb_id', 'chain_id', 'n_residues',
         'num_missing', 'num_breaks', 'num_fragments', 'num_strained',
         'ca_max_dist', 'pep_max_dist',],
+    # chain torsions / bond angles (pipelines/qc/chain_torsions.py,
+    # src/sql/qc.sql)
+    'chain_torsions': ['pdb_id', 'chain_id', 'n_residues',
+        'n_angles', 'angle_rmsz', 'n_z_outliers', 'z_outlier_frac',
+        'n_torsions', 'torsion_null_frac', 'frac_trans', 'frac_cis',
+        'n_cis_nonpro', 'rama_analysed', 'rama_favoured_frac',
+        'rama_allowed_frac', 'rama_outlier_frac', 'n_peptides',
+        'peptide_outlier_frac', 'mainchain_outlier_frac',],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],

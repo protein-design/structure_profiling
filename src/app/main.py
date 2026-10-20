@@ -33,6 +33,7 @@ pool = {
     # qc
     'chain_clashes': 'qc.chain_clashes',
     'chain_breaks': 'qc.chain_breaks',
+    'chain_torsions': 'qc.chain_torsions',
     'pdb_qc': 'dynamics.pdb_qc',
     'pdb_relaxed_qc': 'dynamics.pdb_relaxed_qc',
 }
