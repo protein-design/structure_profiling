@@ -34,6 +34,9 @@ pool = {
     'chain_clashes': 'qc.chain_clashes',
     'chain_breaks': 'qc.chain_breaks',
     'chain_torsions': 'qc.chain_torsions',
+    'chain_bonds': 'qc.chain_bonds',
+    'chain_cbeta': 'qc.chain_cbeta',
+    'chain_chirality': 'qc.chain_chirality',
     'pdb_qc': 'dynamics.pdb_qc',
     'pdb_relaxed_qc': 'dynamics.pdb_relaxed_qc',
 }

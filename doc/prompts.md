@@ -28,3 +28,8 @@ Analyze chain torsion and angles of protein structure given pdb
       SQL statements are defined in src/sql/
     - add test cases in tests/
     - add a command to bin/5_qc.sh
+
+
+    Analyze pipelines/pdb_qc.py. identify any other methods that not covered by chain_clashes.py,
+    or chain_breaks.py or chain_torsions.py. categorize them by rationals and 
+    create one or multiple pipelines in pipelines/qc/.

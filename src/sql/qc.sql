@@ -68,6 +68,57 @@ CREATE TABLE chain_torsions(
         REFERENCES pdb(pdb_id) ON DELETE CASCADE
 );
 
+/* covalent bond-length QC of chains (pipelines/qc/chain_bonds.py).
+   Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
+   Z_OUTLIER_CUT=5 on |Z| vs the Engh & Huber IDEAL_BONDS;
+   BACKBONE_GATES: bond_rmsz=2.0 (wwPDB expects [0, 1]),
+   z_outlier_frac=0.01 (bond + angle rows combined) */
+DROP TABLE IF EXISTS chain_bonds;
+CREATE TABLE chain_bonds(
+    pdb_id              VARCHAR(10),
+    chain_id            VARCHAR(20) PRIMARY KEY,
+    n_bonds             INT,
+    bond_rmsz           FLOAT,
+    n_bond_outliers     INT,
+    bond_z_outlier_frac FLOAT,
+    bond_max_absz       FLOAT,
+    CONSTRAINT fk_chainbonds_pdb FOREIGN KEY (pdb_id)
+        REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
+
+/* MolProbity-style Cbeta-deviation QC of chains
+   (pipelines/qc/chain_cbeta.py). Cutoffs live in
+   geometry/geometry_distance.py (GeometryDistance):
+   CB_DEVIATION_CUT=0.25 A; STRUCTURE_GATES cb_outlier_frac=0.05 */
+DROP TABLE IF EXISTS chain_cbeta;
+CREATE TABLE chain_cbeta(
+    pdb_id              VARCHAR(10),
+    chain_id            VARCHAR(20) PRIMARY KEY,
+    n_residues          INT,
+    n_cb_analysed       INT,
+    cb_max_dev          FLOAT,
+    cb_outlier_frac     FLOAT,
+    CONSTRAINT fk_chaincbeta_pdb FOREIGN KEY (pdb_id)
+        REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
+
+/* CA-chirality QC of chains (pipelines/qc/chain_chirality.py).
+   Cutoffs live in geometry/geometry_angle.py (GeometryAngle):
+   CHIRAL_VOL_L=2.6 A^3, CHIRAL_VOL_MIN=0.7 A^3 (0 < volume < min is
+   'planar', < 0 is D, no CB is 'NA'); STRUCTURE_GATES
+   n_chirality_outliers=0 */
+DROP TABLE IF EXISTS chain_chirality;
+CREATE TABLE chain_chirality(
+    pdb_id                  VARCHAR(10),
+    chain_id                VARCHAR(20) PRIMARY KEY,
+    n_residues              INT,
+    n_chirality_analysed    INT,
+    n_chirality_outliers    INT,
+    chirality_outlier_frac  FLOAT,
+    CONSTRAINT fk_chainchirality_pdb FOREIGN KEY (pdb_id)
+        REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
+
 
 
 DROP TABLE IF EXISTS pdb_qc;

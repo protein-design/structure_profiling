@@ -69,6 +69,16 @@ TABLE_COLUMNS = {
         'n_cis_nonpro', 'rama_analysed', 'rama_favoured_frac',
         'rama_allowed_frac', 'rama_outlier_frac', 'n_peptides',
         'peptide_outlier_frac', 'mainchain_outlier_frac',],
+    # chain bond lengths (pipelines/qc/chain_bonds.py, src/sql/qc.sql)
+    'chain_bonds': ['pdb_id', 'chain_id', 'n_bonds', 'bond_rmsz',
+        'n_bond_outliers', 'bond_z_outlier_frac', 'bond_max_absz',],
+    # cbeta deviation (pipelines/qc/chain_cbeta.py, src/sql/qc.sql)
+    'chain_cbeta': ['pdb_id', 'chain_id', 'n_residues',
+        'n_cb_analysed', 'cb_max_dev', 'cb_outlier_frac',],
+    # CA chirality (pipelines/qc/chain_chirality.py, src/sql/qc.sql)
+    'chain_chirality': ['pdb_id', 'chain_id', 'n_residues',
+        'n_chirality_analysed', 'n_chirality_outliers',
+        'chirality_outlier_frac',],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],
