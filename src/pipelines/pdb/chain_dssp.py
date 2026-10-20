@@ -26,8 +26,9 @@ def search_pdb(params, meta):
         WHERE m.pdb_group = {pdb_group}
             AND s.chain_seq IS NOT NULL
             AND i.model_no = 0
-            AND c.chain_id NOT IN (
-                SELECT chain_id FROM {table_name}
+            AND NOT EXISTS (
+                SELECT 1 FROM {table_name} b
+                WHERE c.chain_id = b.chain_id
             )
     """
     rows = QueryComplex(params['verbose']).list_data(query)
@@ -67,6 +68,8 @@ def pdb_dssp(row_iter, params, meta):
             continue
         meta['records'] += 1
         rec = [item.get(col) for col in cols]
+        if params['verbose']:
+            print('DSSP:', rec)
         yield tuple(rec)
 
 

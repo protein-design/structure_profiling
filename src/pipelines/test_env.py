@@ -47,6 +47,18 @@ REQUIRED_ENV_KEYS = ('MYSQL_HOST', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_DB', '
 SECRET_MARKS = ('PASSWORD', 'PASSWD', 'SECRET', 'TOKEN')
 # dirs configured in helper params, checked for existence and write access
 CHECKED_DIRS = ('output_dir', 'output_pdb_dir', 'tmp_dir', 'rawdata_dir')
+# mkdssp 4.x (libcifpp based) needs the Chemical Component Dictionary at
+# runtime, otherwise every sp chain_dssp run aborts with a "Configuration
+# error" about a missing components.cif. First hit wins; note libcifpp
+# also honours the LIBCIFPP_DATA_DIR environment variable on its own.
+CCD_NAMES = ('components.cif', 'components.cif.gz')
+CCD_DIRS = (
+    os.getenv('LIBCIFPP_DATA_DIR'),
+    Path.home() / '.local/share/libcifpp',
+    Path('/var/cache/libcifpp'),
+    Path('/usr/share/libcifpp'),
+    Path('/usr/local/share/libcifpp'),
+)
 
 OK, WARN, MISS = 'OK', 'WARN', 'MISS'
 
@@ -192,14 +204,42 @@ def check_cuda():
     return rows
 
 
+def find_ccd():
+    '''path of the Chemical Component Dictionary file mkdssp 4.x needs'''
+    for data_dir in CCD_DIRS:
+        if not data_dir:
+            continue
+        for name in CCD_NAMES:
+            path = Path(data_dir) / name
+            if path.is_file():
+                return path
+    return None
+
+
 def check_binaries():
     '''external programs some pipelines shell out to'''
+    rows = []
     mkdssp = shutil.which('mkdssp')
-    return [{
+    rows.append({
         'item': 'mkdssp',
         'status': OK if mkdssp else WARN,
         'detail': mkdssp or 'not on PATH (sp chain_dssp will fail)',
-    }]
+    })
+    if mkdssp:
+        ccd = find_ccd()
+        if ccd is not None:
+            rows.append({'item': 'mkdssp CCD', 'status': OK, 'detail': str(ccd)})
+        else:
+            fix = (
+                'curl -o ~/.local/share/libcifpp/components.cif.gz '
+                'https://files.wwpdb.org/pub/pdb/data/monomers/components.cif.gz'
+            )
+            rows.append({
+                'item': 'mkdssp CCD',
+                'status': WARN,
+                'detail': f'components.cif missing (mkdssp 4.x aborts without it); fix: {fix}',
+            })
+    return rows
 
 
 def check_mysql():

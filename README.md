@@ -74,8 +74,10 @@ sp pdb_relaxed_qc 0
 
 `sp test_env` takes no group: it reports python and dependency versions, the
 `.env` in use (secrets masked, output dirs checked), OpenMM platforms and
-CUDA/GPU availability (PyTorch when installed), `mkdssp`, and MySQL
-connectivity. It exits non-zero when a required dependency or path is broken.
+CUDA/GPU availability (PyTorch when installed), `mkdssp` plus its runtime CCD
+data (`components.cif`, which mkdssp 4.x needs to resolve residue compounds),
+and MySQL connectivity. It exits non-zero when a required dependency or path
+is broken.
 
 `0` is the `pdb_group` to process; when omitted it is auto-assigned from the
 `meta_execute` table.

@@ -4,12 +4,14 @@ requires the dssp executable (mkdssp)
 '''
 import os
 import shutil
-from unittest import TestCase, skipUnless
-
-from ..helper import *
+import tempfile
+from pathlib import Path
+from unittest import TestCase, mock, skipUnless
 
 from src.structure_profiling import AnalyzeDssp
 from src.structure_profiling.structure.analyze_dssp import DSSP_CODES
+
+from ..helper import *
 
 pdb_file = os.path.join(DATA_DIR, 'PDB', '6BSX_0_A_0.pdb')
 chain_id = 'A'
@@ -34,6 +36,24 @@ class TestAnalyzeDssp(TestCase):
         # one-letter dssp alphabet
         for i in rec:
             self.assertIn(i['dssp_code'], DSSP_CODES)
+
+    def test_ensure_ccd_data_dir(self):
+        '''LIBCIFPP_DATA_DIR is only set when a CCD file is actually found'''
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch('src.structure_profiling.structure.analyze_dssp.CCD_DIRS', (tmp,)), \
+                mock.patch.dict(os.environ):
+            os.environ.pop('LIBCIFPP_DATA_DIR', None)
+            AnalyzeDssp.ensure_ccd_data_dir()
+            self.assertNotIn('LIBCIFPP_DATA_DIR', os.environ)
+
+            Path(tmp, 'components.cif.gz').write_text('fake ccd', encoding='utf-8')
+            AnalyzeDssp.ensure_ccd_data_dir()
+            self.assertEqual(os.environ['LIBCIFPP_DATA_DIR'], tmp)
+
+            # an explicit user setting always wins
+            os.environ['LIBCIFPP_DATA_DIR'] = '/custom'
+            AnalyzeDssp.ensure_ccd_data_dir()
+            self.assertEqual(os.environ['LIBCIFPP_DATA_DIR'], '/custom')
 
     def test_parse_dssp_seq(self):
         dssp_seq = 'HHHEEECCCSSTT'

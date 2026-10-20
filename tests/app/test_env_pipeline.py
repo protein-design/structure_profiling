@@ -4,7 +4,9 @@ No database required: the mysql probe is mocked out (CI hosts have no
 COMPLEX2), everything else only reads the local .env loaded by tests/helper.py.
 - pytest -s tests/app/test_env_pipeline.py
 '''
+import tempfile
 from collections import defaultdict
+from pathlib import Path
 from unittest import TestCase, mock
 
 from pipelines.test_env import (
@@ -90,6 +92,31 @@ class TestCheckBinaries(TestCase):
         rows = check_binaries()
         self.assertEqual(rows[0]['item'], 'mkdssp')
         self.assertIn(rows[0]['status'], (OK, WARN))
+
+    def _ccd_rows(self, tmp, ccd_file=None):
+        '''check_binaries() against a hermetic fake data dir and binary'''
+        if ccd_file is not None:
+            Path(tmp, ccd_file).write_text('fake ccd', encoding='utf-8')
+        with mock.patch('pipelines.test_env.CCD_DIRS', (tmp,)), \
+                mock.patch('pipelines.test_env.shutil.which',
+                           return_value='/usr/bin/mkdssp'):
+            return statuses(check_binaries())
+
+    def test_ccd_gz_found_is_ok(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            found = self._ccd_rows(tmp, 'components.cif.gz')
+        self.assertEqual(found['mkdssp CCD'], OK)
+
+    def test_ccd_plain_found_is_ok(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            found = self._ccd_rows(tmp, 'components.cif')
+        self.assertEqual(found['mkdssp CCD'], OK)
+
+    def test_ccd_missing_is_warn(self):
+        '''absent CCD only degrades to WARN, it is not a hard MISS'''
+        with tempfile.TemporaryDirectory() as tmp:
+            found = self._ccd_rows(tmp)
+        self.assertEqual(found['mkdssp CCD'], WARN)
 
 
 class TestRun(TestCase):

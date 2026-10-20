@@ -1,8 +1,5 @@
-/*
-chain_clashes: steric / vdW clash metrics per chain
-Collected by pipelines/qc/chain_clashes.py (Clashes.run()).
-Columns match TABLE_COLUMNS['chain_clashes'] (database/build_complex.py).
-*/
+
+
 DROP TABLE IF EXISTS chain_clashes;
 CREATE TABLE chain_clashes(
     pdb_id              VARCHAR(10),
