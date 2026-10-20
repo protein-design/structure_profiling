@@ -3,8 +3,8 @@ requirements:
     - PDB raw data
     - table pdb, meta_chain_pdb
 example: 
-    - parallel -j8 bomics chain_dssp ::: {0..258}
-    - bomics chain_dssp 0
+    - parallel -j8 sp chain_dssp ::: {0..258}
+    - sp chain_dssp 0
 functions:
     - Analyze secondary structure by chains
     - put dssp sequence to table chain_dssp

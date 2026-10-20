@@ -4,6 +4,9 @@ import sys
 import subprocess
 
 pool = {
+    # diagnostics
+    'test_env': 'test_env',
+
     # pdb
     'chain_dssp': 'pdb.chain_dssp',
 

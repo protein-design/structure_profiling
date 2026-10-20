@@ -3,8 +3,8 @@
 requirements:
     - chain is labelled in table label_chain
 example:
-    - parallel -j8 bomics chain_relaxed ::: {0..258}
-    - bomics chain_relaxed 0
+    - parallel -j8 sp chain_relaxed ::: {0..258}
+    - sp chain_relaxed 0
 function:
     - relax pdb
     - insert data into table chain_relaxed
@@ -22,8 +22,9 @@ def retrieve_pdb(params, meta):
         LEFT JOIN meta_pdb p ON f.pdb_id = p.pdb_id
         WHERE p.pdb_group = {pdb_group}
             AND f.fixed_pdb IS NOT NULL
-            AND f.chain_id NOT IN (
-                SELECT chain_id FROM {table_name}
+            AND NOT EXISTS (
+                SELECT 1 FROM {table_name} b
+                WHERE f.chain_id = b.chain_id
             )
     """
     rows = QueryComplex(params['verbose']).list_data(query)
@@ -64,7 +65,6 @@ def relax(row, params, meta):
     rec = (
         pdb_id,
         chain_id,
-        time0,
         relative_path,
         info.get('original_energy'),
         info.get('relaxed_energy'),

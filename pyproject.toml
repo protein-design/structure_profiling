@@ -15,7 +15,7 @@ dependencies = [
     "biopython>=1.85",
     "mysql-connector-python>=9.7.0",
     "numpy>=1.26",
-    "openmm>=8.5.2",
+    "openmm[cuda12]>=8.5.2",
     "pandas>=2.2",
     "pdbfixer",
     "python-dotenv>=1.2.2",

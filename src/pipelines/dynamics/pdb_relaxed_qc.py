@@ -3,8 +3,8 @@
 requirements:
     - table chain_relaxed
 example:
-    - parallel -j2 bomics pdb_relaxed_qc ::: {0..258}
-    - bomics pdb_relaxed_qc 0
+    - parallel -j2 sp pdb_relaxed_qc ::: {0..258}
+    - sp pdb_relaxed_qc 0
 function:
     - geometry of structure after relaxation
 '''

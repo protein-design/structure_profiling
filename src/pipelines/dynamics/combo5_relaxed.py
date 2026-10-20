@@ -3,8 +3,8 @@
 requirements:
     - table combo5_fixed
 example:
-    - parallel -j8 bomics combo5_relaxed ::: {0..258}
-    - bomics combo5_relaxed 0
+    - parallel -j8 sp combo5_relaxed ::: {0..258}
+    - sp combo5_relaxed 0
 function:
     - relax pdb
     - insert data into table combo5_relaxed

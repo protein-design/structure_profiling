@@ -3,8 +3,8 @@
 requirements:
     - table combo3
 example:
-    - parallel -j8 bomics combo3_fixed ::: {0..258}
-    - bomics combo3_fixed 0
+    - parallel -j8 sp combo3_fixed ::: {0..258}
+    - sp combo3_fixed 0
 function:
     - fix pdb files
     - insert data into table combo3_fixed

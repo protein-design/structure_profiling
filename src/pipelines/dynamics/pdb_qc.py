@@ -3,8 +3,8 @@
 requirements:
     - table chain_pdb
 example:
-    - parallel -j8 bomics pdb_qc ::: {0..258}
-    - bomics pdb_qc 0
+    - parallel -j8 sp pdb_qc ::: {0..258}
+    - sp pdb_qc 0
 function:
     - geometry of structure
 '''

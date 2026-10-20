@@ -125,16 +125,31 @@ class OpenmmSimulation:
         # OpenMM's PDBFile puts a dummy 0.1 nm box on PDB files without a
         # CRYST1 record; PME with a 1 nm cutoff needs at least a 2 nm box,
         # else create_system() raises "cutoff distance cannot be greater
-        # than half the periodic box size"
+        # than half the periodic box size".  The box must also fully
+        # contain the molecule: with PME a structure larger than its box
+        # interacts with its own periodic images (energy ~1e17 kJ/mol,
+        # minimization diverges to NaN, e.g. 9U43 chain N spans 4 nm).
+        # So size the box from the structure extent plus 1 nm padding per
+        # side (>= the 1 nm nonbondedCutoff), with a 2 nm minimum.
         box = self.pdb.topology.getPeriodicBoxVectors()
         if box is None or (
                 box[0][0] + box[1][1] + box[2][2]) < 1.5 * unit.nanometer:
+            pad = 2.0 * unit.nanometer   # 1 nm padding on each side
+            min_size = 0.5 * unit.nanometer
+            positions = self.pdb.positions
+            size = []
+            for axis in range(3):
+                coords = [vec[axis] for vec in positions]
+                extent = max(coords) - min(coords)
+                size.append(max(extent, min_size) + pad)
             if self.verbose:
-                print(f"Add periodic box vector for data from {self.pdb_file}")
+                box_str = ' x '.join(f'{s}/{s.unit}' for s in size)
+                print(f"Add periodic box vector {box_str} for data from "
+                      f"{self.pdb_file}")
             self.pdb.topology.setPeriodicBoxVectors([
-                mm.Vec3(2.0, 0.0, 0.0),
-                mm.Vec3(0.0, 2.0, 0.0),
-                mm.Vec3(0.0, 0.0, 2.0),
+                mm.Vec3(size[0]/unit.nanometer, 0.0, 0.0),
+                mm.Vec3(0.0, size[1]/unit.nanometer, 0.0),
+                mm.Vec3(0.0, 0.0, size[2]/unit.nanometer),
             ] * unit.nanometer)
             self.info['periodic_box'] = 'default'
 

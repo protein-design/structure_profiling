@@ -3,8 +3,8 @@
 requirements:
     - table chain_pdb
 example:
-    - parallel -j8 bomics chain_clashes ::: {0..258}
-    - bomics chain_clashes 0
+    - parallel -j8 sp chain_clashes ::: {0..258}
+    - sp chain_clashes 0
 function:
     - steric / MolProbity vdW clash metrics of every chain in chain_pdb,
       collected into table chain_clashes (src/sql/qc.sql)
