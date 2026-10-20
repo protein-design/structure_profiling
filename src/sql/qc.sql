@@ -11,7 +11,6 @@ CREATE TABLE chain_clashes(
     n_vdw_clashes       INT,
     vdw_clash_score     FLOAT,
     max_overlap         FLOAT,
-    host                VARCHAR(10),
     CONSTRAINT fk_chainclashes_pdb FOREIGN KEY (pdb_id)
         REFERENCES pdb(pdb_id) ON DELETE CASCADE
 );

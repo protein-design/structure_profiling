@@ -71,7 +71,8 @@ def run(rows, params, meta):
                 'host': params['host'],
             })
             rec = [info.get(i) for i in cols]
-            print(rec)
+            if params['verbose']:
+                print(rec)
             yield tuple(rec)
         except Exception as e:
             print(f"WARNING: clash metrics of {row['pdb_file']} failed. error={e}")

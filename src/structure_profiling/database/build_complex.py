@@ -56,7 +56,7 @@ TABLE_COLUMNS = {
     # clashes (pipelines/qc/chain_clashes.py, src/sql/qc.sql)
     'chain_clashes': ['pdb_id', 'chain_id', 'n_heavy_atoms',
         'num_clashes', 'num_severe_clashes', 'clash_score',
-        'n_vdw_clashes', 'vdw_clash_score', 'max_overlap', 'host',],
+        'n_vdw_clashes', 'vdw_clash_score', 'max_overlap',],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],
