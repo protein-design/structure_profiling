@@ -57,6 +57,10 @@ TABLE_COLUMNS = {
     'chain_clashes': ['pdb_id', 'chain_id', 'n_heavy_atoms',
         'num_clashes', 'num_severe_clashes', 'clash_score',
         'n_vdw_clashes', 'vdw_clash_score', 'max_overlap',],
+    # chain breaks / continuity (pipelines/qc/chain_breaks.py, src/sql/qc.sql)
+    'chain_breaks': ['pdb_id', 'chain_id', 'n_residues',
+        'num_missing', 'num_breaks', 'num_fragments', 'num_strained',
+        'ca_max_dist', 'pep_max_dist',],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],

@@ -7,6 +7,8 @@ APP="uv --directory /home/yuan/bio/structure_profiling run sp"
 # steric / MolProbity vdW clash metrics of chains in chain_pdb
 parallel -j8 ${APP} chain_clashes ::: {0..258}
 
+parallel -j8 ${APP} chain_breaks ::: {0..258}
+
 # qc of original structures
 parallel -j8 ${APP} pdb_qc ::: {0..258}
 

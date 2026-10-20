@@ -7,7 +7,7 @@ meta_pdb -> chain_pdb -> chain_fixed -> chain_relaxed
          -> combo3 -> combo3_fixed -> combo3_relaxed
          -> combo4 -> combo4_fixed -> combo4_relaxed
          -> combo5 -> combo5_fixed -> combo5_relaxed
-         -> chain_clashes -> pdb_qc -> pdb_relaxed_qc
+         -> chain_clashes -> chain_breaks -> pdb_qc -> pdb_relaxed_qc
 
 Schema references the shared COMPLEX2 tables (pdb, combo2..combo5).
 */

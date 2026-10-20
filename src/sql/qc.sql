@@ -1,4 +1,9 @@
+/*
+Chain-clash and chain-continuity QC tables (pipelines/qc/chain_clashes.py,
+pipelines/qc/chain_breaks.py).
 
+Cutoffs live in structure/clashes.py (Clashes) and qc/breaks.py (Breaks).
+*/
 
 DROP TABLE IF EXISTS chain_clashes;
 CREATE TABLE chain_clashes(
@@ -15,6 +20,20 @@ CREATE TABLE chain_clashes(
         REFERENCES pdb(pdb_id) ON DELETE CASCADE
 );
 
+DROP TABLE IF EXISTS chain_breaks;
+CREATE TABLE chain_breaks(
+    pdb_id              VARCHAR(10),
+    chain_id            VARCHAR(20) PRIMARY KEY,
+    n_residues          INT,
+    num_missing         INT,
+    num_breaks          INT,
+    num_fragments       INT,
+    num_strained        INT,
+    ca_max_dist         FLOAT,
+    pep_max_dist        FLOAT,
+    CONSTRAINT fk_chainbreaks_pdb FOREIGN KEY (pdb_id)
+        REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
 
 
 

@@ -1,13 +1,15 @@
 '''Distance-based protein geometry QC for one Bio.PDB chain.
 
-Covers standard residues / heavy atoms, missing backbone atoms, Ca-Ca and
-peptide C-N distances, radius of gyration, covalent bond
+Covers standard residues / heavy atoms, radius of gyration, covalent bond
 length Z-scores (Engh & Huber style, |Z| > 5 outlier) and MolProbity-style
 Cb deviation.
 
 Clash analysis (steric clashes, MolProbity-style vdW-overlap clash score)
 is collected in structure/clashes.py (Clashes); the methods and
 module-level functions below delegate to it for backward compatibility.
+Chain-continuity analysis (missing backbone atoms, chain breaks,
+Ca-Ca / peptide C-N distances) is collected in qc/breaks.py (Breaks);
+the methods below delegate to it for backward compatibility.
 '''
 import pandas as pd
 from Bio import PDB
@@ -57,24 +59,24 @@ class GeometryDistance:
     def missing_residues(self) -> list:
         '''check if every residues has expected backbone atoms: N, CA, C, O
         return: residues with missing atoms
+
+        Moved to Breaks.missing_residues (qc/breaks.py); this delegate
+        keeps the GeometryDistance API used by Geometry.run() and
+        qc_screen.
+
         Cutoff: no tolerance - any residue lacking N/CA/C/O is listed;
-        Geometry.check() fails when num_missing > 0.
+        Geometry.check() / Breaks.check() fail when num_missing > 0.
         '''
-        missing = []
-        for r in self.standard_residues():
-            atoms = {a.name for a in r}
-            required = {"N", "CA", "C", "O"}
-            if not required <= atoms:
-                missing.append((r.id[1], required - atoms))
-        return missing
+        from ..qc.breaks import Breaks
+        return Breaks(self.chain).missing_residues()
 
     def chain_continuity(self, cn_break: float = 2.0,
             ca_break: float = 4.5, cn_strain: float = 1.5):
         '''Localise backbone breaks / chain-continuity failures for one chain.
 
-        One row per consecutive standard-residue pair: real discontinuities
-        land in 'breaks', stretched-but-intact peptides in 'strained';
-        num_fragments = 1 + num_breaks (a clean chain is one fragment).
+        Moved to Breaks.chain_continuity (qc/breaks.py); this delegate
+        keeps the GeometryDistance API used by Geometry.run() and
+        qc_screen.
 
         Cutoff: cn_break=2.0 A, C-N above this is a real break (ideal
         1.329 A); ca_break=4.5 A, CA-CA above this is a break (ideal
@@ -82,83 +84,36 @@ class GeometryDistance:
         stretched peptide. A pair is also a break when C-N is unmeasurable
         (missing atoms) or residue numbering skips (resnum_gap != 1).
         '''
-        res = self.standard_residues()
-        # breaks:  one row per real discontinuity (chain break)
-        # strained: one row per stretched but intact peptide
-        # frag: fragment counter, starts at 0, += 1 per break
-        breaks, strained, frag = [], [], 0
-
-        for i in range(len(res) - 1):
-            a, b = res[i], res[i + 1]
-            d_cn = float(np.linalg.norm(a['C'].coord - b['N'].coord)) \
-                if ('C' in a and 'N' in b) else None
-            d_ca = float(np.linalg.norm(a['CA'].coord - b['CA'].coord)) \
-                if ('CA' in a and 'CA' in b) else None
-            num_gap = b.id[1] - a.id[1]           # residue-numbering gap
-
-            row = {
-                'prev_res': a.id[1],
-                'prev_name': a.resname,
-                'next_res': b.id[1],
-                'next_name': b.resname,
-                'resnum_gap': num_gap,
-                'd_C_N': d_cn,
-                'd_CA_CA': d_ca
-            }
-
-            # pair is broken: C-N unmeasurable or > cn_break, resnum_gap != 1,
-            # or d_CA_CA > ca_break
-            # incremented exactly once for every break, so num_fragments = 1 + frag
-            broken = (d_cn is None or d_cn > cn_break or num_gap != 1
-                or (d_ca is not None and d_ca > ca_break))
-            if broken:
-                frag += 1
-                breaks.append({**row, 'fragment_after': frag})
-            # pair is not broken and 1.5 Å < d_C_N ≤ 2.0 Å
-            elif d_cn is not None and d_cn > cn_strain:
-                strained.append(row)
-
-        # column-complete frames also when no pair qualifies
-        pair_cols = ['prev_res', 'prev_name', 'next_res', 'next_name',
-                     'resnum_gap', 'd_C_N', 'd_CA_CA']
-        breaks = pd.DataFrame(breaks, columns=pair_cols + ['fragment_after'])
-        strained = pd.DataFrame(strained, columns=pair_cols)
-        return {
-            'num_residues': len(res),
-            'num_fragments': 1 + frag,
-            'num_breaks': len(breaks),
-            'num_strained': len(strained),
-            'breaks': breaks,
-            'strained': strained,
-        }
-
+        from ..qc.breaks import Breaks
+        return Breaks(self.chain).chain_continuity(
+            cn_break=cn_break, ca_break=ca_break, cn_strain=cn_strain)
 
     def ca_distances(self):
         '''detect bad Ca connections. No large gap
         calculate distance between Ca-Ca atoms
+
+        Moved to Breaks.ca_distances (qc/breaks.py); this delegate keeps
+        the GeometryDistance API used by Geometry.run() and qc_screen.
+
         Cutoff: ideal CA-CA ~3.8 A; Geometry.check() fails when max > 5 A.
         '''
-        ca = [r["CA"].coord for r in self.standard_residues() if "CA" in r]
-        if len(ca) < 2:
-            return np.array([])
-        # distance between ca-ca
-        ca2 = np.asarray(ca[1:]) - np.asarray(ca[:-1])
-        return np.linalg.norm(ca2, axis=1)
+        from ..qc.breaks import Breaks
+        return Breaks(self.chain).ca_distances()
 
     def peptide_distances(self):
         """peptide C-N distance
         https://bionumbers.hms.harvard.edu/bionumber.aspx?id=111178&ver=0&trm=peptide&org=
+
+        Moved to Breaks.peptide_distances (qc/breaks.py); this delegate
+        keeps the GeometryDistance API used by Geometry.run() and
+        qc_screen.
+
         Cutoff: ideal C-N = 1.329 A (peptide bond); chain_continuity()
         flags C-N > 2.0 A as a break; Geometry.check() fails when
         max > 5 A or mean > 3 A.
         """
-        residues = self.standard_residues()
-        pep_dist = [
-            np.linalg.norm(residues[i]["C"].coord - residues[i+1]["N"].coord)
-            for i in range(len(residues)-1)
-            if "C" in residues[i] and "N" in residues[i+1]
-        ]
-        return np.array(pep_dist)
+        from ..qc.breaks import Breaks
+        return Breaks(self.chain).peptide_distances()
 
     def atom_distance(self, pos1:int, atom1:str, pos2:int, atom2:str):
         '''
