@@ -13,7 +13,7 @@ geometry/geometry_distance.py, geometry/geometry.py and qc/qc_screen.py):
 
 run() returns the summary exported by pipelines/qc/chain_breaks.py to
 the SQL table chain_breaks; check() gates it on the Breaks cutoffs
-(consistent with the BACKBONE_GATES entries in qc_screen.py).
+(the BACKBONE_GATES values of the former qc_screen screens).
 
 Cutoffs:
     cn_break = 2.0 A   C-N above this is a real break (ideal 1.329 A)
@@ -37,7 +37,7 @@ class Breaks:
     ca_break:float = 4.5       # CA-CA above this is a break
     cn_strain:float = 1.5      # C-N above this but <= cn_break is strained
 
-    # gates (fail -> reason), consistent with BACKBONE_GATES in qc_screen.py
+    # gates (fail -> reason), the former BACKBONE_GATES of qc_screen.py
     GATES = {
         'num_missing': 0,      # no residue may lack N/CA/C/O atoms
         'num_breaks': 0,       # real discontinuities fail
@@ -183,7 +183,7 @@ class Breaks:
     def run(self, keep_details:bool=True) -> dict:
         '''compute all chain-continuity metrics of one chain.
 
-        Covers the continuity half of Geometry.run() and
+        Covers the continuity half of Geometry.run() and the former
         backbone_qc_screen(): missing backbone atoms (num_missing),
         numbering-gap / broken peptides (num_breaks), the resulting
         fragment count (num_fragments = 1 + num_breaks), stretched

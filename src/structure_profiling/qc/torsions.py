@@ -21,8 +21,8 @@ qc/qc_screen.py):
 
 run() returns the summary exported by pipelines/qc/chain_torsions.py to
 the SQL table chain_torsions; check() gates it on the Torsions cutoffs
-(consistent with BACKBONE_GATES / STRUCTURE_GATES in qc_screen.py and
-the torsion gate in Geometry.check()).
+(the BACKBONE_GATES / STRUCTURE_GATES values of the former qc_screen
+screens and the torsion gate in Geometry.check()).
 
 Cutoffs:
     Z_OUTLIER_CUT = 5.0        |Z| above this flags a bond-angle outlier
@@ -59,8 +59,8 @@ class Torsions:
     OMEGA_DEV_CUT: float = 30.0      # deg, omega dev above this is outlier
     MAINCHAIN_OOP_CUT: float = 10.0  # deg, out-of-plane above this fails
 
-    # gates (fail -> reason), consistent with BACKBONE_GATES /
-    # STRUCTURE_GATES in qc_screen.py and the torsion gate in Geometry.check()
+    # gates (fail -> reason), the former BACKBONE_GATES /
+    # STRUCTURE_GATES of qc_screen.py and the torsion gate in Geometry.check()
     GATES = {
         'angle_rmsz': 1.5,              # RMS |Z| over backbone bond angles
         'z_outlier_frac': 0.01,         # fraction of |Z|>5 angle outliers
@@ -181,7 +181,7 @@ class Torsions:
         '''Z-scores of backbone bond angles vs IDEAL_ANGLES (|Z| > 5 outlier).
 
         Cutoff: Z_OUTLIER_CUT=5.0 on |Z|; angle RMS-Z expected in [0, 1]
-        (wwPDB), BACKBONE_GATES tolerates angle_rmsz up to 1.5 for design.
+        (wwPDB), former BACKBONE_GATES tolerates angle_rmsz up to 1.5.
         Covers intra-residue N-CA-C plus CA(i)-C(i)-N(i+1) and
         C(i)-N(i+1)-CA(i+1) bridge angles. Returns columns res_pos, resname,
         atoms, observed, ideal, sd, z, outlier.
@@ -269,7 +269,7 @@ class Torsions:
         Cutoffs (wwPDB): peptide_outlier when omega_dev > OMEGA_DEV_CUT
         (30 deg, deviation of omega from nearest cis 0 / trans 180);
         mainchain_outlier when out-of-plane n_oop_deg >
-        MAINCHAIN_OOP_CUT (10 deg). BACKBONE_GATES tolerates
+        MAINCHAIN_OOP_CUT (10 deg). Former BACKBONE_GATES tolerates
         peptide_outlier_frac=0.05 / mainchain_outlier_frac=0.05.
         omega_dev vs nearest cis(0)/trans(180), outlier when > 30 deg;
         n_oop_deg of C(i)->N(i+1) out of CA(i)/C(i)/O(i) plane, outlier
@@ -440,7 +440,7 @@ class Torsions:
         '''compute all torsion / bond-angle metrics of one chain.
 
         Covers the torsion half of Geometry.run() and the planarity /
-        Rama parts of backbone_qc_screen() / structure_qc_screen():
+        Rama parts of the former structure_qc_screen():
         backbone bond angles vs Engh & Huber ideals (n_angles,
         angle_rmsz, n_z_outliers, z_outlier_frac), backbone torsions
         phi/psi/omega (n_torsions, torsion_null_frac, frac_trans,

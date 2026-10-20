@@ -21,22 +21,12 @@ Protein geometry QC for a PDB file.
     hydrogens are excluded, clash score is
     normalized per 1000 heavy atoms
 5. Compactness           radius of gyration
-6. Screens over many models: see qc_screen.py -- backbone_qc_screen()
-    (N/CA/C/O only) and structure_qc_screen() (backbone + side chains)
 
 execution:
     run()   -> summary statistics dict ('details' holds raw data)
     check() -> (pass/fail, reason)
     
-    
-prompt:
-    scan the funcion backbone_qc_screen(). 
-    - include all possible methods defined in GeometryDistance and GeometryAngle
-    - check if all metrics are included in the run() summary
-    - check if all metrics are included in the check() gates
-    then Update it if needed. confirm if all necessary gates are included in check() 
-        and if the cutoffs are consistent.
-'''
+    '''
 
 import warnings
 
@@ -95,8 +85,8 @@ class Geometry(Pdb):
         (wwPDB criterion: RMS-Z in [0, 1] is expected; |Z| > 5 are outliers).
 
         Cutoffs: RMS-Z itself is a magnitude (good models ~0.5-1.0);
-        BACKBONE_GATES uses bond_rmsz=2.0 / angle_rmsz=1.5 as design
-        tolerances; outlier counting uses Z_OUTLIER_CUT=5.0.
+        the former BACKBONE_GATES used bond_rmsz=2.0 / angle_rmsz=1.5
+        as design tolerances; outlier counting uses Z_OUTLIER_CUT=5.0.
 
         Returns {'bond_rmsz', 'angle_rmsz', 'n_bond_outliers',
         'n_angle_outliers'}; RMS-Z is None when the chain has no measurable
@@ -153,7 +143,7 @@ class Geometry(Pdb):
             geo_data['peptide_distance'] = pep_dist
 
         # chain continuity: counts in the summary (num_breaks / num_fragments
-        # / num_strained match the BACKBONE_GATES names in qc_screen.py),
+        # / num_strained, also the Breaks.GATES keys),
         # per-pair localisation under 'details'
         cont = gd.chain_continuity()
         geo_stat['chain_continuity'] = {k: cont[k] for k in ('num_residues', \
@@ -211,7 +201,7 @@ class Geometry(Pdb):
         Cutoffs (fail -> reason):
           num_missing > 0 -> 'missing_residues' (no tolerance);
           chain_continuity num_breaks > 0 -> 'chain_breaks'
-            (BACKBONE_GATES num_breaks = 0);
+            (num_breaks = 0);
           ca max > 5 A -> 'ca_distance' (ideal CA-CA ~3.8 A);
           peptide max > 5 A or mean > 3 A -> 'peptide_distance'
             (ideal C-N = 1.329 A);
@@ -219,7 +209,7 @@ class Geometry(Pdb):
             (backbone-only models skip this gate);
           num_severe_clashes > 0 -> 'severe_clashes'
             (contacts < severe_clash_distance = 2.0 A;
-            BACKBONE_GATES num_servere_clashes = 0);
+            former BACKBONE_GATES num_servere_clashes = 0);
           clash_score > clash_score_cutoff (30.0/1000 atoms) -> 'clashes'.
       
         '''
@@ -231,7 +221,7 @@ class Geometry(Pdb):
             return False, 'missing_residues'
         # chain continuity: any real break (broken / numbering-gap peptide)
         # splits the chain; num_fragments == num_breaks + 1 (see run()),
-        # consistent with BACKBONE_GATES num_breaks = 0
+        # gate: num_breaks = 0
         cont = geo_info.get('chain_continuity') or {}
         if cont.get('num_breaks', 0) > 0:
             return False, 'chain_breaks'
@@ -239,8 +229,8 @@ class Geometry(Pdb):
         ca = geo_info.get('ca_distance')
         if ca is not None and pd.notna(ca.get('max')) and ca['max'] > 5:
             return False, 'ca_distance'
-        # ideal C-N 1.329 A; fail on a break (max > 5 A, same cutoff as
-        # BACKBONE_GATES pep_max_dist) or stretched peptides (mean > 3 A)
+        # ideal C-N 1.329 A; fail on a break (max > 5 A, the Breaks
+        # pep_max_dist cutoff) or stretched peptides (mean > 3 A)
         pep = geo_info.get('peptide_distance')
         if pep is not None and pd.notna(pep.get('max')):
             if pep['max'] > 5 or (pd.notna(pep.get('mean')) and pep['mean'] > 3):
@@ -251,8 +241,7 @@ class Geometry(Pdb):
             if torsion.get('null', 0) > 0.05:
                 return False, 'torsion_angles'
         # severe steric clashes: non-bonded heavy-atom contacts below
-        # severe_clash_distance (2.0 A); consistent with BACKBONE_GATES
-        # num_servere_clashes = 0
+        # severe_clash_distance (2.0 A); num_servere_clashes = 0
         if geo_info.get('num_severe_clashes', 0) > 0:
             return False, 'severe_clashes'
         # steric clashes: clash score = clashes per 1000 heavy atoms,

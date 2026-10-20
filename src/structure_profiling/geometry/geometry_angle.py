@@ -135,7 +135,7 @@ class GeometryAngle:
         '''Residue-type aware phi/psi label: favoured/allowed/outlier/NA.
 
         Moved to Torsions.rama_class (qc/torsions.py); delegate keeps the
-        API used by qc_screen.py and the tests. Analytic boxes only.
+        API used by the tests. Analytic boxes only.
         '''
         from ..qc.torsions import Torsions  # lazy, avoids import cycle
         return Torsions.rama_class(phi, psi, resname, prev_resname)

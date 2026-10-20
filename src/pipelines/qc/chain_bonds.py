@@ -14,7 +14,7 @@ Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
     - Z_OUTLIER_CUT = 5.0   |Z| above this is a covalent-geometry outlier
     - IDEAL_BONDS           Engh & Huber (mean, sd) targets: N-CA, CA-C,
                             C-O, CA-CB plus the C(i)-N(i+1) peptide bridge
-    - GATES (qc_screen.py BACKBONE_GATES): bond_rmsz = 2.0 (wwPDB expects
+    - GATES (former qc_screen BACKBONE_GATES): bond_rmsz = 2.0 (wwPDB expects
       RMS-Z in [0, 1]), z_outlier_frac = 0.01 (bond + angle rows combined;
       this table holds the bond-length half)
 '''
@@ -58,7 +58,7 @@ def bond_metrics(pdb_file, chain_no):
     the C(i)-N(i+1) peptide bridge) vs the Engh & Huber ideals in
     GeometryDistance.IDEAL_BONDS. Returns n_bonds, bond_rmsz (RMS of
     the Z-scores, the kind='bond' half of Geometry.chain_rmsz; wwPDB
-    expects [0, 1], BACKBONE_GATES tolerates 2.0), n_bond_outliers
+    expects [0, 1], former BACKBONE_GATES tolerates 2.0), n_bond_outliers
     (|Z| > Z_OUTLIER_CUT = 5), bond_z_outlier_frac and bond_max_absz.
     '''
     chain = Pdb(pdb_file).get_chain(chain_no)

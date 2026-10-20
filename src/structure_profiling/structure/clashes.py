@@ -120,7 +120,7 @@ class Clashes:
         distance (A).
 
         Cutoff: distance=severe_clash_distance (2.0 A); check() fails when
-        num_severe_clashes > 0 (BACKBONE_GATES num_servere_clashes = 0).
+        num_severe_clashes > 0 (former BACKBONE_GATES num_servere_clashes).
         '''
         clashes = self.steric_clashes() if clashes is None else clashes
         distance = self.severe_clash_distance if distance is None else distance
@@ -225,11 +225,11 @@ class Clashes:
             keep_details:bool=True) -> dict:
         '''compute all clash metrics of one chain.
 
-        The steric half is the same metric as Geometry.run() and
-        backbone_qc_screen(): non-bonded heavy-atom contacts below
+        The steric half is the same metric as Geometry.run() and the
+        former backbone_qc_screen(): non-bonded heavy-atom contacts below
         clash_cutoff (2.4 A), severe contacts below
         severe_clash_distance (2.0 A) and the clash score per 1000 heavy
-        atoms. The vdW half is the MolProbity clashscore of
+        atoms. The vdW half is the MolProbity clashscore of the former
         structure_qc_screen(): overlaps >= VDW_OVERLAP_CUT (0.40 A) per
         1000 heavy atoms; hydrogens are excluded unless
         include_hydrogen=True (structures with added hydrogens).

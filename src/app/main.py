@@ -37,8 +37,6 @@ pool = {
     'chain_bonds': 'qc.chain_bonds',
     'chain_cbeta': 'qc.chain_cbeta',
     'chain_chirality': 'qc.chain_chirality',
-    'pdb_qc': 'dynamics.pdb_qc',
-    'pdb_relaxed_qc': 'dynamics.pdb_relaxed_qc',
 }
 
 def main():

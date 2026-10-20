@@ -71,7 +71,7 @@ CREATE TABLE chain_torsions(
 /* covalent bond-length QC of chains (pipelines/qc/chain_bonds.py).
    Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
    Z_OUTLIER_CUT=5 on |Z| vs the Engh & Huber IDEAL_BONDS;
-   BACKBONE_GATES: bond_rmsz=2.0 (wwPDB expects [0, 1]),
+   former BACKBONE_GATES: bond_rmsz=2.0 (wwPDB expects [0, 1]),
    z_outlier_frac=0.01 (bond + angle rows combined) */
 DROP TABLE IF EXISTS chain_bonds;
 CREATE TABLE chain_bonds(
@@ -89,7 +89,7 @@ CREATE TABLE chain_bonds(
 /* MolProbity-style Cbeta-deviation QC of chains
    (pipelines/qc/chain_cbeta.py). Cutoffs live in
    geometry/geometry_distance.py (GeometryDistance):
-   CB_DEVIATION_CUT=0.25 A; STRUCTURE_GATES cb_outlier_frac=0.05 */
+   CB_DEVIATION_CUT=0.25 A; former STRUCTURE_GATES cb_outlier_frac=0.05 */
 DROP TABLE IF EXISTS chain_cbeta;
 CREATE TABLE chain_cbeta(
     pdb_id              VARCHAR(10),
@@ -105,7 +105,7 @@ CREATE TABLE chain_cbeta(
 /* CA-chirality QC of chains (pipelines/qc/chain_chirality.py).
    Cutoffs live in geometry/geometry_angle.py (GeometryAngle):
    CHIRAL_VOL_L=2.6 A^3, CHIRAL_VOL_MIN=0.7 A^3 (0 < volume < min is
-   'planar', < 0 is D, no CB is 'NA'); STRUCTURE_GATES
+   'planar', < 0 is D, no CB is 'NA'); former STRUCTURE_GATES
    n_chirality_outliers=0 */
 DROP TABLE IF EXISTS chain_chirality;
 CREATE TABLE chain_chirality(
@@ -120,32 +120,4 @@ CREATE TABLE chain_chirality(
 );
 
 
-
-DROP TABLE IF EXISTS pdb_qc;
-CREATE TABLE pdb_qc(
-    pdb_id                  VARCHAR(10),
-    chain_id                VARCHAR(20) PRIMARY KEY,
-    angle_rmsz              FLOAT,
-    bond_rmsz               FLOAT,
-    ca_max_dist             FLOAT,
-    cb_outlier_frac         FLOAT,
-    clash_score             FLOAT,
-    mainchain_outlier_frac  FLOAT,
-    n_chirality_outliers    INT,
-    n_z_outliers            INT,
-    num_breaks              INT,
-    num_clashes             INT,
-    num_fragments           INT,
-    num_missing             INT,
-    num_strained            INT,
-    num_servere_clashes     INT,
-    pep_max_dist            FLOAT,
-    peptide_outlier_frac    FLOAT,
-    rama_outlier_frac       FLOAT,
-    vdw_clash_score         FLOAT,
-    z_outlier_frac          FLOAT,
-    CONSTRAINT fk_pdbqc_pdb FOREIGN KEY (pdb_id)
-        REFERENCES pdb(pdb_id) ON DELETE CASCADE
-);
-CREATE TABLE pdb_relaxed_qc LIKE pdb_qc;
 

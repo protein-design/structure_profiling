@@ -10,7 +10,7 @@ relaxation of fixed structures and QC screening of predicted/backbone geometry.
 ## Layout
 
 ```
-sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, pdb_qc, pdb_relaxed_qc)
+sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
@@ -25,11 +25,14 @@ src/
 │       ├── combo2..5_fixed.py        fix chain combos
 │       ├── chain_relaxed.py          relax one chain (OpenMM)
 │       ├── func_relaxed.py           shared relax helpers (combo2..5 reuse it)
-│       ├── combo2..5_relaxed.py      relax chain combos
-│       ├── pdb_qc.py                 QC screening of structures
-│       └── pdb_relaxed_qc.py         QC screening of relaxed structures
+│       └── combo2..5_relaxed.py      relax chain combos
 │   ├── qc/
-│   │   └── chain_clashes.py            steric / MolProbity vdW clash metrics per chain
+│   │   ├── chain_clashes.py           steric / MolProbity vdW clash metrics per chain
+│   │   ├── chain_breaks.py            chain continuity (missing atoms, breaks, strain)
+│   │   ├── chain_torsions.py          torsions, bond-angle Z, Ramachandran, planarity
+│   │   ├── chain_bonds.py             covalent bond-length Z metrics
+│   │   ├── chain_cbeta.py             Cbeta-deviation metrics
+│   │   └── chain_chirality.py         CA-chirality (handedness) metrics
 └── structure_profiling/
     ├── common/          ProcessJson, ProcessSeq (colabfold csv/fasta export), WriteTmp (rsync tmp dir)
     ├── database/        MySQL layer (Db, Insert/Query/Delete/Update + *Complex)
@@ -68,8 +71,7 @@ sp chain_fixed 0
 sp combo2_fixed 0
 sp chain_relaxed 0
 sp chain_clashes 0
-sp pdb_qc 0
-sp pdb_relaxed_qc 0
+sp chain_breaks 0
 ```
 
 `sp test_env` takes no group: it reports python and dependency versions, the

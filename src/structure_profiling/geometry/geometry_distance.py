@@ -61,8 +61,7 @@ class GeometryDistance:
         return: residues with missing atoms
 
         Moved to Breaks.missing_residues (qc/breaks.py); this delegate
-        keeps the GeometryDistance API used by Geometry.run() and
-        qc_screen.
+        keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: no tolerance - any residue lacking N/CA/C/O is listed;
         Geometry.check() / Breaks.check() fail when num_missing > 0.
@@ -75,8 +74,7 @@ class GeometryDistance:
         '''Localise backbone breaks / chain-continuity failures for one chain.
 
         Moved to Breaks.chain_continuity (qc/breaks.py); this delegate
-        keeps the GeometryDistance API used by Geometry.run() and
-        qc_screen.
+        keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: cn_break=2.0 A, C-N above this is a real break (ideal
         1.329 A); ca_break=4.5 A, CA-CA above this is a break (ideal
@@ -93,7 +91,7 @@ class GeometryDistance:
         calculate distance between Ca-Ca atoms
 
         Moved to Breaks.ca_distances (qc/breaks.py); this delegate keeps
-        the GeometryDistance API used by Geometry.run() and qc_screen.
+        the GeometryDistance API used by Geometry.run().
 
         Cutoff: ideal CA-CA ~3.8 A; Geometry.check() fails when max > 5 A.
         '''
@@ -105,8 +103,7 @@ class GeometryDistance:
         https://bionumbers.hms.harvard.edu/bionumber.aspx?id=111178&ver=0&trm=peptide&org=
 
         Moved to Breaks.peptide_distances (qc/breaks.py); this delegate
-        keeps the GeometryDistance API used by Geometry.run() and
-        qc_screen.
+        keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: ideal C-N = 1.329 A (peptide bond); chain_continuity()
         flags C-N > 2.0 A as a break; Geometry.check() fails when
@@ -151,8 +148,7 @@ class GeometryDistance:
         steric clashes: non-bonded heavy-atom contacts closer than cutoff (A).
 
         Moved to Clashes.steric_clashes (structure/clashes.py); this
-        delegate keeps the GeometryDistance API used by Geometry.run()
-        and qc_screen.
+        delegate keeps the GeometryDistance API used by Geometry.run().
 
         Cutoffs: cutoff=2.4 A fixed distance (heuristic); contacts below
         severe_clash_distance=2.0 A are counted severe (Clashes.severe_clashes);
@@ -185,7 +181,7 @@ class GeometryDistance:
         an outlier, wwPDB criterion).
 
         Cutoff: Z_OUTLIER_CUT=5.0 on |Z|; bond RMS-Z expected in [0, 1]
-        (wwPDB), BACKBONE_GATES tolerates bond_rmsz up to 2.0 for design.
+        (wwPDB), former BACKBONE_GATES tolerates bond_rmsz up to 2.0.
 
         Evaluates intra-residue N-CA, CA-C, C-O, CA-CB plus the C(i)-N(i+1)
         peptide bridge. Returns DataFrame(res_pos, resname, atoms, observed,

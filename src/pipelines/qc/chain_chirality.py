@@ -14,7 +14,7 @@ Cutoffs live in geometry/geometry_angle.py (GeometryAngle):
     - CHIRAL_VOL_L = 2.6 A^3    ideal L-amino-acid CA chiral volume
     - CHIRAL_VOL_MIN = 0.7 A^3  0 < volume < this is a 'planar' centre;
       volume < 0 is a D-amino acid (rare); glycin (no CB) is 'NA'
-    - GATE (qc_screen.py STRUCTURE_GATES): n_chirality_outliers = 0
+    - GATE (former qc_screen STRUCTURE_GATES): n_chirality_outliers = 0
       (D / planar CA centres in an L-amino-acid chain)
 '''
 from src.helper import *
@@ -55,7 +55,7 @@ def chirality_metrics(pdb_file, chain_no):
 
     Returns n_residues (standard residues), n_chirality_analysed
     (residues with a CB; glycin is 'NA'), n_chirality_outliers
-    ('D' + 'planar' centres; STRUCTURE_GATES gate 0) and
+    ('D' + 'planar' centres; former STRUCTURE_GATES gate 0) and
     chirality_outlier_frac (outliers / analysed residues).
     '''
     chain = Pdb(pdb_file).get_chain(chain_no)

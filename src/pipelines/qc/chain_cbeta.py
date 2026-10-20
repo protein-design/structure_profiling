@@ -15,7 +15,7 @@ Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
     - CB_BOND_LEN = 1.521 A     idealized CA-CB bond
     - CB_ANGLE = 110.0 deg      idealized N-CA-CB = C-CA-CB
     - CB_DEVIATION_CUT = 0.25 A deviation flagged as a CB outlier
-    - GATE (qc_screen.py STRUCTURE_GATES): cb_outlier_frac = 0.05;
+    - GATE (former qc_screen STRUCTURE_GATES): cb_outlier_frac = 0.05;
       glycin (no CB) cannot deviate and reports cb_dev None
 '''
 from src.helper import *
@@ -58,7 +58,7 @@ def cbeta_metrics(pdb_file, chain_no):
     with a measurable CB; glycin reports cb_dev None), cb_max_dev
     (largest deviation, A) and cb_outlier_frac (residues with
     cb_dev > CB_DEVIATION_CUT = 0.25 A over standard residues, the
-    same fraction as structure_qc_screen; gate 0.05).
+    same fraction as the former structure_qc_screen; gate 0.05).
     '''
     chain = Pdb(pdb_file).get_chain(chain_no)
     cb = GeometryDistance(chain).cbeta_deviation()

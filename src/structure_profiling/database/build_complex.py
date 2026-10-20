@@ -38,21 +38,9 @@ TABLE_COLUMNS = {
         'original_energy', 'relaxed_energy',],
     'combo5_relaxed': ['pdb_id', 'combo_id', 'relaxed_pdb',
         'original_energy', 'relaxed_energy',],
-    #qc
-    'pdb_qc': ['pdb_id', 'chain_id', 'angle_rmsz', 'bond_rmsz',
-        'ca_max_dist', 'cb_outlier_frac', 'clash_score',
-        'mainchain_outlier_frac', 'n_chirality_outliers',
-        'n_z_outliers', 'num_breaks', 'num_clashes', 'num_fragments',
-        'num_missing', 'num_strained', 'num_servere_clashes',
-        'pep_max_dist', 'peptide_outlier_frac', 'rama_outlier_frac',
-        'vdw_clash_score', 'z_outlier_frac',],
-    'pdb_relaxed_qc': ['pdb_id', 'chain_id', 'angle_rmsz', 'bond_rmsz',
-        'ca_max_dist', 'cb_outlier_frac', 'clash_score',
-        'mainchain_outlier_frac', 'n_chirality_outliers',
-        'n_z_outliers', 'num_breaks', 'num_clashes', 'num_fragments',
-        'num_missing', 'num_strained', 'num_servere_clashes',
-        'pep_max_dist', 'peptide_outlier_frac', 'rama_outlier_frac',
-        'vdw_clash_score', 'z_outlier_frac',],
+    # (the retired monolithic pdb_qc / pdb_relaxed_qc tables have no
+    # entry; original and relaxed structures are covered by the chain_*
+    # qc tables below)
     # clashes (pipelines/qc/chain_clashes.py, src/sql/qc.sql)
     'chain_clashes': ['pdb_id', 'chain_id', 'n_heavy_atoms',
         'num_clashes', 'num_severe_clashes', 'clash_score',
