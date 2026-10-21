@@ -1,0 +1,24 @@
+sp pipeline,module (sp → python -m …),driver script,result table,rows
+chain_fixed_breaks,src.pipelines.qc.chain_fixed_breaks,ad hoc — not wired into bin/5_qc.sh,chain_fixed_breaks,
+combo2,src.pipelines.pdb.combo2,bin/1_combo.sh,combo2,133259
+combo3,src.pipelines.pdb.combo3,bin/1_combo.sh,combo3,138528
+combo4,src.pipelines.pdb.combo4,bin/1_combo.sh,combo4,2229
+combo5,src.pipelines.pdb.combo5,bin/1_combo.sh,combo5,4448
+chain_fixed,src.pipelines.dynamics.chain_fixed,bin/2_fix.sh,chain_fixed,33485
+combo2_fixed,src.pipelines.dynamics.combo2_fixed,bin/2_fix.sh,combo2_fixed,133259
+combo3_fixed,src.pipelines.dynamics.combo3_fixed,bin/2_fix.sh,combo3_fixed,138529
+combo4_fixed,src.pipelines.dynamics.combo4_fixed,bin/2_fix.sh,combo4_fixed,2229
+combo5_fixed,src.pipelines.dynamics.combo5_fixed,bin/2_fix.sh,combo5_fixed,4448
+chain_relaxed,src.pipelines.dynamics.chain_relaxed,bin/3_relax.sh,chain_relaxed,33485
+combo2_relaxed,src.pipelines.dynamics.combo2_relaxed,bin/3_relax.sh,combo2_relaxed,133259
+combo3_relaxed,src.pipelines.dynamics.combo3_relaxed,bin/3_relax.sh,combo3_relaxed,138529
+combo4_relaxed,src.pipelines.dynamics.combo4_relaxed,bin/3_relax.sh,combo4_relaxed,2229
+combo5_relaxed,src.pipelines.dynamics.combo5_relaxed,bin/3_relax.sh,combo5_relaxed,4448
+chain_dssp,src.pipelines.pdb.chain_dssp,bin/4_md.sh,chain_dssp,886653
+chain_bonds,src.pipelines.qc.chain_bonds,bin/5_qc.sh,chain_bonds,766864
+chain_breaks,src.pipelines.qc.chain_breaks,bin/5_qc.sh,chain_breaks,766864
+chain_cbeta,src.pipelines.qc.chain_cbeta,bin/5_qc.sh,chain_cbeta,766864
+chain_chirality,src.pipelines.qc.chain_chirality,bin/5_qc.sh,chain_chirality,766864
+chain_clashes,src.pipelines.qc.chain_clashes,bin/5_qc.sh,chain_clashes,240265
+chain_torsions,src.pipelines.qc.chain_torsions,bin/5_qc.sh,chain_torsions,766864
+test_env,src.pipelines.test_env,diagnostic — writes no table,—,

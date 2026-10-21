@@ -33,3 +33,21 @@ Analyze chain torsion and angles of protein structure given pdb
     Analyze pipelines/pdb_qc.py. identify any other methods that not covered by chain_clashes.py,
     or chain_breaks.py or chain_torsions.py. categorize them by rationals and 
     create one or multiple pipelines in pipelines/qc/.
+
+    summarize QC analysis:
+      - QC analysis is determined by the scripts in pipelines/qc/.
+      - Analytic results are saved into SQL tables
+      - create doc/qc.ipynb summarizing QC results.
+      - Employ various plots showing QC results.
+      - recommend the thresholds or cutoff for QC.
+      - draw flowcharts for QC evaluations.
+  
+  summarize pdb analysis:
+      - The pipelines in pipelines/pdb build complex combinations.
+      - The pipelines in pipelines/dynamics/ fix pdb and relaxation.
+      - Those analytic results are saved into SQL tables
+      - create doc/pdb.ipynb summarizing analytics results.
+      - Show results using flowchart, or plots.
+      - evaluate pdb fixing and relaxation based on those results.
+
+workflow
