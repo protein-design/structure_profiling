@@ -72,6 +72,18 @@ TABLE_COLUMNS = {
     'chain_chirality': ['pdb_id', 'chain_id', 'n_residues',
         'n_chirality_analysed', 'n_chirality_outliers',
         'chirality_outlier_frac',],
+    # predict (pipelines/predict, src/sql/predict.sql)
+    'af_params': ['pdb_id', 'input_id', 'input_table_name', 'input_col_name',
+        'input_size', 'group_no', 'combo', 'categories', 'query_faa', 'outdir',],
+    'af_msa': ['input_id', 'a3m_name', 'host',],
+    'af_pred': ['input_id', 'pred_outdir', 'host',],
+    'af_summary': ['input_id', 'ranking', 'avg_plddt', 'avg_ptm', 'max_pae',
+        'json_name', 'relaxed_pdb_name', 'unrelaxed_pdb_name'],
+    'af_plddt': ['input_id', 'pred_pdb_name', 'relative_pkl',
+        'model_no', 'chain_no', 'avg_plddt',],
+    'af_rmsd': ['input_id', 'pdb_status', 'rmsd', 'native_pdb', 'pred_pdb_name'],
+    'af_tmalign': ['input_id', 'pdb_status', 'rmsd', 'tm1', 'tm2',
+        'native_pdb', 'pred_pdb_name'],
     # meta
     'meta': ['pdb_group', 'host', 'ip_addr', 'script'],
     'meta_execute': ['table_name', 'pdb_group', 'host', 'ip_addr', 'script'],

@@ -40,6 +40,10 @@ params = {
     'tmp_dir': Path(os.getenv('tmp_dir', os.getenv('output_dir'))),
     # raw data shared with bio_omics, needed by the combo2..5 split pipelines
     'rawdata_dir': Path(os.getenv('rawdata_dir', os.getenv('output_dir'))),
+    'tools_dir': Path(os.getenv('tools_dir', os.getenv('output_dir'))),
+    'predict_dir': Path(os.getenv('predict_dir',
+        os.path.join(os.getenv('output_dir'), 'predict'))),
+    'gpu': shutil.which('nvidia-smi') is not None,
 }
 params['output_pdb_dir'] = params['output_dir'] / 'pdb'
 params['simulate_dir'] = params['output_dir'] / 'simulate'
