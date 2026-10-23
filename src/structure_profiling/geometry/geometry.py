@@ -34,7 +34,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-from ..structure import Pdb
+from .pdb import Pdb
 from ..qc import Clashes
 from .geometry_distance import GeometryDistance
 from .geometry_angle import GeometryAngle
