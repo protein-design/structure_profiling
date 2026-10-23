@@ -22,7 +22,7 @@ import numpy as np
 
 from ..helper import *
 from src.structure_profiling import Pdb, Breaks
-from src.structure_profiling.geometry.geometry_distance import GeometryDistance
+from src.structure_profiling.qc.geometry_distance import GeometryDistance
 
 PDB_6BSX = os.path.join(DATA_DIR, 'PDB', '6BSX_0_A_0.pdb')
 

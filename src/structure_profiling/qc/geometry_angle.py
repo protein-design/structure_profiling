@@ -5,9 +5,9 @@ single-box Ramachandran evaluation, bond-angle Z-scores (Engh & Huber
 style), peptide / main-chain planarity (wwPDB criteria) and residue-type
 aware Ramachandran classification (MolProbity style: Gly / Pro / pre-Pro)
 are collected in qc/torsions.py (Torsions); the methods below delegate
-to it for backward compatibility (lazy imports - the qc package is not
-importable while geometry/__init__ is still executing). Empirical
-Top8000-style grids live in geometry_rama.py.
+to it for backward compatibility (lazy imports - torsions.py imports
+this module at load time). Empirical Top8000-style grids live in
+rama_grid.py.
 
 CA chiral-volume cutoffs (from wwPDB validation):
     CHIRAL_VOL_L = 2.6    ideal L-amino-acid CA chiral volume (A^3)
@@ -51,7 +51,7 @@ class GeometryAngle:
         Moved to Torsions.dihedral_angle (qc/torsions.py); delegate keeps
         the GeometryAngle API used by geometry.py and the tests.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions.dihedral_angle(p0, p1, p2, p3)
 
     @staticmethod
@@ -60,7 +60,7 @@ class GeometryAngle:
 
         Moved to Torsions.bond_angle (qc/torsions.py); delegate.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions.bond_angle(a, b, c)
 
     @staticmethod
@@ -74,7 +74,7 @@ class GeometryAngle:
         delegate keeps the API used by geometry.py and the tests.
         phi/psi are expected in degrees; None / NaN -> 'null'
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions.evaluate_ramachandran(phi, psi)
 
     def bond_angles(self):
@@ -84,7 +84,7 @@ class GeometryAngle:
         Returns DataFrame(residue, res_pos, angle_N_CA_C, angle_CA_C_N);
         angle_CA_C_N is None at peptide fragment ends.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).bond_angles()
 
     def torsion_angles(self):
@@ -95,7 +95,7 @@ class GeometryAngle:
         Moved to Torsions.torsion_angles (qc/torsions.py); delegate.
         omega is None at the end of each peptide fragment.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).torsion_angles()
 
     def bond_angle_z(self) -> pd.DataFrame:
@@ -106,7 +106,7 @@ class GeometryAngle:
         C(i)-N(i+1)-CA(i+1) bridge angles. Returns columns res_pos,
         resname, atoms, observed, ideal, sd, z, outlier.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).bond_angle_z()
 
     def peptide_planarity(self) -> pd.DataFrame:
@@ -117,7 +117,7 @@ class GeometryAngle:
         n_oop_deg of C(i)->N(i+1) out of CA(i)/C(i)/O(i) plane, outlier
         when > 10 deg.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).peptide_planarity()
 
     def phi_psi_series(self) -> list:
@@ -127,7 +127,7 @@ class GeometryAngle:
         Returns list of dicts (res_pos, resname, phi, psi, prev_resname);
         phi/psi are None at chain ends or when backbone atoms are missing.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).phi_psi_series()
 
     @staticmethod
@@ -137,7 +137,7 @@ class GeometryAngle:
         Moved to Torsions.rama_class (qc/torsions.py); delegate keeps the
         API used by the tests. Analytic boxes only.
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions.rama_class(phi, psi, resname, prev_resname)
 
     def rama_molprobity(self) -> dict:
@@ -147,16 +147,16 @@ class GeometryAngle:
         Returns analysed count, favoured/allowed/outlier fractions and
         outliers list of (pos, resname, phi, psi).
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).rama_molprobity()
 
     def rama_grid_summary(self, grids) -> dict:
         '''Empirical grid-based Ramachandran summary of one chain.
 
         Moved to Torsions.rama_grid_summary (qc/torsions.py); delegate.
-        grids: RamaGrid instance (structure_profiling/geometry/rama_grid.py).
+        grids: RamaGrid instance (structure_profiling/qc/rama_grid.py).
         '''
-        from ..qc.torsions import Torsions  # lazy, avoids import cycle
+        from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).rama_grid_summary(grids)
 
     # ------------------------------------------------------------------

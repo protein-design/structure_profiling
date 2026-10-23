@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 from Bio.PDB.DSSP import DSSP
 
-from ..geometry.pdb import Pdb
+from .pdb import Pdb
 
 DSSP_KEYS = ['dssp_index', 'residue_name', 'dssp_code', 'Relative_ASA', 
     'Phi', 'Psi', 'NH–O_1_relidx', 'NH–O_1_energy', 'O–NH_1_relidx', 

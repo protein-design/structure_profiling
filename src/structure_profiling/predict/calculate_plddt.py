@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..geometry.pdb import Pdb
+from ..structure.pdb import Pdb
 
 
 class CalculatePlddt(Pdb):

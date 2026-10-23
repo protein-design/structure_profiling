@@ -48,10 +48,11 @@ src/
 └── structure_profiling/
     ├── common/          ProcessJson, ProcessSeq (colabfold csv/fasta export), WriteTmp (rsync tmp dir)
     ├── database/        MySQL layer (Db, Insert/Query/Delete/Update + *Complex)
-    ├── structure/       Pdb parser (incl. to_chain_pdb), atom_select, AnalyzeDssp, Clashes
-    ├── geometry/        Geometry, GeometryDistance, GeometryAngle, RamaGrid
-    ├── qc/              StructureQC screening
-    └── relax/           timeout, OpenmmPdbfixer, OpenmmSimulation
+    ├── structure/       Pdb parser (pdb.py, parse_structure, atom_select;
+    │                    to_chain_pdb), AnalyzeDssp, timeout, OpenmmPdbfixer,
+    │                    OpenmmSimulation
+    └── qc/              Breaks, Torsions, Clashes + protein-geometry QC:
+                         Geometry, GeometryDistance, GeometryAngle, RamaGrid
 tests/
 ```
 

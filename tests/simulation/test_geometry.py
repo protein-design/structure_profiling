@@ -16,10 +16,10 @@ import pandas as pd
 
 from ..helper import *
 from src.structure_profiling import Pdb
-from src.structure_profiling.geometry.geometry import Geometry
-from src.structure_profiling.geometry.geometry_angle import GeometryAngle
-from src.structure_profiling.geometry.geometry_distance import GeometryDistance
-from src.structure_profiling.geometry.rama_grid import RamaGrid
+from src.structure_profiling.qc.geometry import Geometry
+from src.structure_profiling.qc.geometry_angle import GeometryAngle
+from src.structure_profiling.qc.geometry_distance import GeometryDistance
+from src.structure_profiling.qc.rama_grid import RamaGrid
 
 PDB_6BSX = os.path.join(DATA_DIR, 'PDB', '6BSX_0_A_0.pdb')
 PDB_2OX8 = os.path.join(DATA_DIR, 'PDB', '2OX8_A.pdb')
