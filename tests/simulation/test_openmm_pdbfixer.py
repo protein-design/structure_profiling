@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 
 from ..helper import *
-from src.structure_profiling.relax.openmm_pdbfixer import OpenmmPdbfixer
+from src.structure_profiling.structure.openmm_pdbfixer import OpenmmPdbfixer
 
 PDB_LYSOZYME = os.path.join(
     DATA_DIR, 'lysozyme', 'AF-P61626-F1-model_v4.pdb')

@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest import TestCase, mock, skipUnless
 
 from src.structure_profiling import AnalyzeDssp
-from src.structure_profiling.geometry.analyze_dssp import DSSP_CODES
+from src.structure_profiling.structure.analyze_dssp import DSSP_CODES
 
 from ..helper import *
 
@@ -40,7 +40,7 @@ class TestAnalyzeDssp(TestCase):
     def test_ensure_ccd_data_dir(self):
         '''LIBCIFPP_DATA_DIR is only set when a CCD file is actually found'''
         with tempfile.TemporaryDirectory() as tmp, \
-                mock.patch('src.structure_profiling.geometry.analyze_dssp.CCD_DIRS', (tmp,)), \
+                mock.patch('src.structure_profiling.structure.analyze_dssp.CCD_DIRS', (tmp,)), \
                 mock.patch.dict(os.environ):
             os.environ.pop('LIBCIFPP_DATA_DIR', None)
             AnalyzeDssp.ensure_ccd_data_dir()

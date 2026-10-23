@@ -7,7 +7,7 @@ import signal
 import time
 
 from ..helper import *
-from src.structure_profiling.relax.timeout import TimeoutError, timeout
+from src.structure_profiling.structure.timeout import TimeoutError, timeout
 
 
 @ddt
