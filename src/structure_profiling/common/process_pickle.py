@@ -31,7 +31,6 @@ class ProcessPickle:
                 print(f"Error: Failed to save data to pickle {self.pickle_file}, error={e}")
             pass
         return 'fail'
-        return 'fail'
 
     def load_pickle(self, default=None):
         try:

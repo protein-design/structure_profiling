@@ -136,8 +136,7 @@ def validate_data(col_name, params, meta, outdir:Path=None):
         print(f"Number of {n} out of {len(rows)} are not existing.", end=' ')
         dc = DeleteComplex(params['verbose'])
         chunk_size = 100
-        end = n - chunk_size if n > chunk_size else n
-        for i in range(0, end, chunk_size):
+        for i in range(0, n, chunk_size):
             values = del_pool[i:i+chunk_size]
             res = dc.delete_rows(table_name, col_name, values)
             if res:

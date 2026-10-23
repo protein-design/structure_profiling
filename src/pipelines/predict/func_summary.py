@@ -219,7 +219,8 @@ def calculate_tmalign(rows:list, params, meta):
                 if res:
                     meta[f'{prefix}_succeed'] += 1
                 else:
-                    meta[f'{[prefix]}_fail'] += 1
+                    meta[f'{prefix}_fail'] += 1
+                    continue
                 rec = (
                     row['input_id'],
                     row['pdb_status'],
