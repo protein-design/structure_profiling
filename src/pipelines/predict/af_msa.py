@@ -68,8 +68,8 @@ if __name__ == "__main__":
 
     # kill the mmseqs leftovers of interrupted runs (no live
     # colabfold_search driver), keep running MSA jobs untouched
-    killed = Clean.clean_msa(verbose=params['verbose'])
-    meta['clean_pids'] = len(killed)
+    # killed = Clean.clean_msa(verbose=params['verbose'])
+    # meta['clean_pids'] = len(killed)
 
     validate_file_rows('a3m_name', params, meta)
     
