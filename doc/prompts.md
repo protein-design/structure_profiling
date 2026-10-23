@@ -1,5 +1,5 @@
 
-## QC
+## geometry
 
 Analyze clashes of protein structure given pdb
     - input pdb files are defined in SQL table chain_pdb.
@@ -29,6 +29,18 @@ Analyze chain torsion and angles of protein structure given pdb
     - add test cases in tests/
     - add a command to bin/5_qc.sh
 
+## structure
+Create pipeline pipelines/dynamics/chain_ligand.py for searching neighbors.
+  - Detect residues near a specific site like a ligand or activity sie.
+   Those residues may be or not be continuous chain sequence but close in space
+  - source code saved to structure_profiling/structure/
+  - input is chain pdb defined in SQL table chain_pdb.
+  - meta data and essential analytic results are exported to SQL table chain_ligand.
+  - if needed, export results to the local in csv or pickle format. 
+  - Update configurations such as pyproject.toml, and README.md
+  - add test cases
+
+## doc/
 
     Analyze pipelines/pdb_qc.py. identify any other methods that not covered by chain_clashes.py,
     or chain_breaks.py or chain_torsions.py. categorize them by rationals and 
@@ -50,4 +62,3 @@ Analyze chain torsion and angles of protein structure given pdb
       - Show results using flowchart, or plots.
       - evaluate pdb fixing and relaxation based on those results.
 
-workflow

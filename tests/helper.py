@@ -175,3 +175,62 @@ def rotate_residues(lines, start_resseq, angle=180.0):
         if _is_atom(l) and _resseq(l) >= start_resseq else l
         for l in lines
     ]
+
+# ---------------------------------------------------------------------------
+# synthetic PDB with a HETATM ligand (the shipped test PDBs have no HETATM)
+# ---------------------------------------------------------------------------
+
+def atom_record(rec_name, serial, atom_name, resname, chain_no, resseq,
+                coord, element):
+    '''one ATOM / HETATM record with fixed-format columns (PDB v3).'''
+    return (f'{rec_name:<6}{serial:>5} {atom_name:>4}'
+            f'{" ":1}{resname:>3} {chain_no:1}{resseq:>4}{" ":1}   '
+            f'{coord[0]:8.3f}{coord[1]:8.3f}{coord[2]:8.3f}'
+            f'{1.00:6.2f}{0.00:6.2f}          {element:>2}  \n')
+
+
+def synthesize_residue(serial_start, resseq, coord, z=0.0, chain_no='A',
+                       resname='ALA'):
+    '''five heavy atoms (N, CA, C, O, CB) of one residue placed around
+    coord = (x, y) at height z: N (x-1.3, 0.8), CA (x, 0), C (x+1.3,
+    -0.6), O (x+1.3, -1.8), CB (x, 1.5). Returns (lines, next_serial).
+    '''
+    x, y = float(coord[0]), float(coord[1])
+    atoms = [('N', (x - 1.3, y + 0.8), 'N'), ('CA', (x, y), 'C'),
+             ('C', (x + 1.3, y - 0.6), 'C'), ('O', (x + 1.3, y - 1.8), 'O'),
+             ('CB', (x, y + 1.5), 'C')]
+    lines, serial = [], serial_start
+    for name, c, element in atoms:
+        lines.append(atom_record('ATOM', serial, name, resname, chain_no,
+                                 resseq, (c[0], c[1], z), element))
+        serial += 1
+    return lines, serial
+
+
+def synthesize_site_pdb(pdb_file):
+    '''small synthetic chain with a HETATM ligand + water, exact coords:
+
+    chain A holds two sequence fragments (residues 1-3 and 101-103 at
+    z = 0 and z = 8, 3.8 A CA spacing along x) plus ligand LIG 300
+    (C1 (3.8, 2.0, 4.0), N1 (3.8, 3.4, 4.0)) and water HOH 501
+    ((7.6, 2.5, 4.0)). At the default 5.0 A cutoff the ligand touches
+    residues 2 and 102 (min CB-C1 sqrt(16.25) ~ 4.031 A, 4 contact
+    atoms each) and 3 / 103 (N, 4.868 A): neighbors close in space but
+    scattered over the sequence (n_fragments = 2). Returns pdb_file.
+    '''
+    lines, serial = [], 1
+    for resseq, z in ((1, 0.0), (2, 0.0), (3, 0.0),
+                      (101, 8.0), (102, 8.0), (103, 8.0)):
+        res_lines, serial = synthesize_residue(
+            serial, resseq, (3.8 * ((resseq - 1) % 100), 0.0), z=z)
+        lines += res_lines
+    # ligand LIG 300 (hetflag H_LIG) and water HOH 501 (hetflag W)
+    lines.append(atom_record('HETATM', serial, 'C1', 'LIG', 'A', 300,
+                             (3.8, 2.0, 4.0), 'C'))
+    lines.append(atom_record('HETATM', serial + 1, 'N1', 'LIG', 'A', 300,
+                             (3.8, 3.4, 4.0), 'N'))
+    lines.append(atom_record('HETATM', serial + 2, 'O', 'HOH', 'A', 501,
+                             (7.6, 2.5, 4.0), 'O'))
+    lines.append('END\n')
+    return write_pdb_lines(lines, pdb_file)
+

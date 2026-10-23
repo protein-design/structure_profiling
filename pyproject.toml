@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "structure-profiling"
 version = "0.1.0"
-description = "Profiling of protein structures: DSSP secondary structure assignment, OpenMM relaxation and QC screening"
+description = "Profiling of protein structures: DSSP secondary structure assignment, OpenMM relaxation, ligand/binding-site neighborhoods and QC screening"
 readme = "README.md"
 authors = [
     {name = "Tiezheng Yuan", email = "tiezhengyuan@hotmail.com"}

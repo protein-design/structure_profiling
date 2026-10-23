@@ -11,7 +11,7 @@ chains/combos and QC screening of predicted/backbone geometry.
 ## Layout
 
 ```
-sql/                     MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, af_params, af_msa, af_pred, af_summary, af_plddt, af_rmsd, af_tmalign)
+src/sql/                 MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, chain_ligand, af_params, af_msa, af_pred, af_summary, af_plddt, af_rmsd, af_tmalign)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
@@ -26,7 +26,8 @@ src/
 │       ├── combo2..5_fixed.py        fix chain combos
 │       ├── chain_relaxed.py          relax one chain (OpenMM)
 │       ├── func_relaxed.py           shared relax helpers (combo2..5 reuse it)
-│       └── combo2..5_relaxed.py      relax chain combos
+│       ├── combo2..5_relaxed.py      relax chain combos
+│       └── chain_ligand.py           ligand / binding-site residue neighborhoods per chain
 │   ├── qc/
 │   │   ├── chain_clashes.py           steric / MolProbity vdW clash metrics per chain
 │   │   ├── chain_breaks.py            chain continuity (missing atoms, breaks, strain)
@@ -49,7 +50,8 @@ src/
     ├── common/          ProcessJson, ProcessSeq (colabfold csv/fasta export), WriteTmp (rsync tmp dir)
     ├── database/        MySQL layer (Db, Insert/Query/Delete/Update + *Complex)
     ├── structure/       Pdb parser (pdb.py, parse_structure, atom_select;
-    │                    to_chain_pdb), AnalyzeDssp, timeout, OpenmmPdbfixer,
+    │                    to_chain_pdb), AnalyzeDssp, Neighbors (ligand /
+    │                    binding-site neighborhoods), timeout, OpenmmPdbfixer,
     │                    OpenmmSimulation
     └── geometry/        Breaks, Torsions, Clashes + protein-geometry QC:
                          Geometry, GeometryDistance, GeometryAngle, RamaGrid
@@ -87,6 +89,7 @@ sp chain_fixed 0
 sp combo2_fixed 0
 sp chain_relaxed 0
 sp chain_clashes 0
+sp chain_ligand 0
 sp chain_breaks 0
 sp chain_fixed_breaks 0
 sp af_params 0
@@ -111,7 +114,10 @@ is broken.
 The `combo2..5` split pipelines need `label_complex`, `meta_pdb`, `pdb_chain_seq`
 and `chain_pdb` filled by bio_omics, plus the `rawdata_dir` env var pointing at
 the shared directory of downloaded PDB files (`meta_pdb.relative_pdb`). Their
-output feeds the `combo2..5_fixed` / `combo2..5_relaxed` pipelines.
+output feeds the `combo2..5_fixed` / `combo2..5_relaxed` pipelines. `chain_ligand`
+also reads those original complex PDBs from `rawdata_dir` (sites and neighbor
+candidates are restricted to the chain); the split chain PDB files carry no
+HETATM, since `to_chain_pdb` exports protein-only chains for dssp/fix/relax.
 
 The `af_*` predict pipelines need `label_chain` / `label_complex` and the
 `pdb_chain_seq` fasta files (both filled by bio_omics, which also creates the
@@ -123,10 +129,11 @@ colabfold installation (`colabfold_bin_dir`, `colabfold_db` in `.env`),
 Create the tables once per database:
 
 ```sh
-mysql COMPLEX2 < sql/pdb.sql
-mysql COMPLEX2 < sql/simulate.sql
-mysql COMPLEX2 < sql/qc.sql
-mysql COMPLEX2 < sql/predict.sql
+mysql COMPLEX2 < src/sql/pdb.sql
+mysql COMPLEX2 < src/sql/simulate.sql
+mysql COMPLEX2 < src/sql/qc.sql
+mysql COMPLEX2 < src/sql/ligand.sql
+mysql COMPLEX2 < src/sql/predict.sql
 ```
 
 ## Tests

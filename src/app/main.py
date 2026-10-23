@@ -39,6 +39,9 @@ pool = {
     'chain_cbeta': 'qc.chain_cbeta',
     'chain_chirality': 'qc.chain_chirality',
 
+    # ligand / binding-site neighborhood
+    'chain_ligand': 'dynamics.chain_ligand',
+
     # predict (alphafold via colabfold)
     'af_params': 'predict.af_params',
     'af_msa': 'predict.af_msa',

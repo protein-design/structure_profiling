@@ -72,6 +72,11 @@ TABLE_COLUMNS = {
     'chain_chirality': ['pdb_id', 'chain_id', 'n_residues',
         'n_chirality_analysed', 'n_chirality_outliers',
         'chirality_outlier_frac',],
+    # ligand / binding-site neighborhood
+    # (pipelines/dynamics/chain_ligand.py, src/sql/ligand.sql)
+    'chain_ligand': ['pdb_id', 'chain_id', 'n_sites', 'ligand_names',
+        'n_neighbor_residues', 'n_fragments', 'min_dist', 'mean_dist',
+        'neighbor_residues', 'neighbor_csv', 'neighbor_pkl'],
     # predict (pipelines/predict, src/sql/predict.sql)
     'af_params': ['pdb_id', 'input_id', 'input_table_name', 'input_col_name',
         'input_size', 'group_no', 'combo', 'categories', 'query_faa', 'outdir',],
