@@ -9,7 +9,7 @@ function:
     - MSA and build *.a3m for structure prediction
 '''
 import asyncio
-from structure_profiling import async_concurr
+from structure_profiling import Clean, async_concurr
 from .func_predict import *
 
 def retrieve(params, meta):
@@ -65,6 +65,12 @@ if __name__ == "__main__":
         'max_input_size': 800,
     })
     add_params(params)
+
+    # kill the mmseqs leftovers of interrupted runs (no live
+    # colabfold_search driver), keep running MSA jobs untouched
+    killed = Clean.clean_msa(verbose=params['verbose'])
+    meta['clean_pids'] = len(killed)
+
     validate_file_rows('a3m_name', params, meta)
     
     # asynchronous functions

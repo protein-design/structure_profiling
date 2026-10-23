@@ -3,8 +3,9 @@ Execute third-party tools
 Decoupled from bio_omics (bioomics.simulation.predictor):
 only the colabfold runners used by the predict pipelines are kept.
 '''
-import os
 import asyncio
+import os
+import time
 from pathlib import Path
 import subprocess
 
@@ -75,6 +76,22 @@ class Predictor:
         return 1
     
     @staticmethod
+    def gpu_free_mib() -> int:
+        '''free video memory (MiB) of the first GPU, 0 if unknown'''
+        try:
+            res = subprocess.run(
+                ['nvidia-smi', '--query-gpu=memory.free',
+                 '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=30, check=False,
+            )
+            if res.returncode == 0 and res.stdout.strip():
+                return int(res.stdout.strip().splitlines()[0])
+            print(f'nvidia-smi failed: {res.stderr.strip()}')
+        except Exception as e:
+            print(f'nvidia-smi failed: {e}')
+        return 0
+
+    @staticmethod
     def colabfold_search(row:dict, params:dict):
         '''
         AlphaFold2: local MSA
@@ -83,7 +100,7 @@ class Predictor:
             outdir:Path,
         }
         '''
-        cmd = [
+        base = [
             'colabfold_search',
             '--threads', '8',
             '--use-env', '0',
@@ -92,24 +109,55 @@ class Predictor:
             '--db2', 'pdb100_230517',
             '--db3', 'colabfold_envdb_202108_db',
         ]
-        if params.get('gpu'):
-            cmd += ['--gpu', '1',]
-        cmd += [
+        tail = [
             str(row['query_faa']),
             str(params['colabfold_db']),
             str(row['outdir']),
-        ]        
+        ]
+        cmd = base + (['--gpu', '1'] if params.get('gpu') else []) + tail
         status = Predictor.colabfold_subprocess(params, cmd)
         if status != 0 and params.get('gpu'):
-            # shared GPUs can run out of video memory (cudaMalloc/std::bad_alloc);
-            # retry once without --gpu (slower CPU search)
-            print('Retry colabfold_search without --gpu (CPU search)...')
-            cpu_cmd = list(cmd)
-            if '--gpu' in cpu_cmd:
-                pos = cpu_cmd.index('--gpu')
-                del cpu_cmd[pos:pos + 2]
-            status = Predictor.colabfold_subprocess(params, cpu_cmd)
+            status = Predictor.colabfold_search_retry(params, base, tail)
         return status
+
+    @staticmethod
+    def colabfold_search_retry(params:dict, base:list, tail:list) -> int:
+        '''
+        Retry a failed GPU colabfold_search. The GPU ungapped prefilter
+        allocates a large workspace (SimpleAllocator cudaMalloc of ~6 GiB
+        for uniref30) and dies with std::bad_alloc when other processes
+        hold video memory. So: wait until enough VRAM is free and retry on
+        GPU; if VRAM never frees up, fall back to a CPU search. The CPU
+        search must pass --prefilter-mode 1 explicitly: the local *.idx
+        databases are built for the ungapped prefilter only, so the
+        colabfold CPU default (prefilter-mode 0, kmer) always dies with
+        "Index was not built with prefilter support".
+        '''
+        free_needed = int(params.get('gpu_vram_free_mib', 7500))
+        timeout = float(params.get('gpu_vram_wait', 900))
+        waited = 0
+        while Predictor.gpu_free_mib() < free_needed and waited < timeout:
+            if waited == 0:
+                print(
+                    f'Waiting for free VRAM '
+                    f'(need {free_needed} MiB, retry every 15s)...'
+                )
+            time.sleep(15)
+            waited += 15
+        if Predictor.gpu_free_mib() >= free_needed:
+            print(
+                'Retry colabfold_search on GPU'
+                + (f' after waiting {waited}s for VRAM' if waited else '')
+                + '...'
+            )
+            if Predictor.colabfold_subprocess(
+                params, base + ['--gpu', '1'] + tail
+            ) == 0:
+                return 0
+        print('Retry colabfold_search on CPU (--prefilter-mode 1)...')
+        return Predictor.colabfold_subprocess(
+            params, base + ['--gpu', '0', '--prefilter-mode', '1'] + tail
+        )
 
     @staticmethod
     def colabfold_batch_msa(row:dict, params:dict):
