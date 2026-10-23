@@ -10,7 +10,7 @@ function:
       every CA centre via the signed N-CA-C-CB chiral volume), collected
       into table chain_chirality (src/sql/qc.sql)
 
-Cutoffs live in qc/geometry_angle.py (GeometryAngle):
+Cutoffs live in geometry/geometry_angle.py (GeometryAngle):
     - CHIRAL_VOL_L = 2.6 A^3    ideal L-amino-acid CA chiral volume
     - CHIRAL_VOL_MIN = 0.7 A^3  0 < volume < this is a 'planar' centre;
       volume < 0 is a D-amino acid (rare); glycin (no CB) is 'NA'

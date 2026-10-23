@@ -51,7 +51,7 @@ src/
     ├── structure/       Pdb parser (pdb.py, parse_structure, atom_select;
     │                    to_chain_pdb), AnalyzeDssp, timeout, OpenmmPdbfixer,
     │                    OpenmmSimulation
-    └── qc/              Breaks, Torsions, Clashes + protein-geometry QC:
+    └── geometry/        Breaks, Torsions, Clashes + protein-geometry QC:
                          Geometry, GeometryDistance, GeometryAngle, RamaGrid
 tests/
 ```

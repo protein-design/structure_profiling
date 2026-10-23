@@ -11,7 +11,7 @@ function:
       position built on the N/CA/C frame), collected into table
       chain_cbeta (src/sql/qc.sql)
 
-Cutoffs live in qc/geometry_distance.py (GeometryDistance):
+Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
     - CB_BOND_LEN = 1.521 A     idealized CA-CB bond
     - CB_ANGLE = 110.0 deg      idealized N-CA-CB = C-CA-CB
     - CB_DEVIATION_CUT = 0.25 A deviation flagged as a CB outlier

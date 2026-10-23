@@ -10,7 +10,7 @@ function:
       the Engh & Huber ideal bond lengths, |Z| > 5 outliers), collected
       into table chain_bonds (src/sql/qc.sql)
 
-Cutoffs live in qc/geometry_distance.py (GeometryDistance):
+Cutoffs live in geometry/geometry_distance.py (GeometryDistance):
     - Z_OUTLIER_CUT = 5.0   |Z| above this is a covalent-geometry outlier
     - IDEAL_BONDS           Engh & Huber (mean, sd) targets: N-CA, CA-C,
                             C-O, CA-CB plus the C(i)-N(i+1) peptide bridge

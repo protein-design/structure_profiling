@@ -5,10 +5,10 @@ length Z-scores (Engh & Huber style, |Z| > 5 outlier) and MolProbity-style
 Cb deviation.
 
 Clash analysis (steric clashes, MolProbity-style vdW-overlap clash score)
-is collected in qc/clashes.py (Clashes); the methods and
+is collected in geometry/clashes.py (Clashes); the methods and
 module-level functions below delegate to it for backward compatibility.
 Chain-continuity analysis (missing backbone atoms, chain breaks,
-Ca-Ca / peptide C-N distances) is collected in qc/breaks.py (Breaks);
+Ca-Ca / peptide C-N distances) is collected in geometry/breaks.py (Breaks);
 the methods below delegate to it for backward compatibility.
 '''
 import pandas as pd
@@ -19,7 +19,7 @@ from pathlib import Path
 from .clashes import Clashes
 
 class GeometryDistance:
-    # canonical clash cutoffs live in Clashes (qc/clashes.py)
+    # canonical clash cutoffs live in Clashes (geometry/clashes.py)
     severe_clash_distance:float = Clashes.severe_clash_distance
 
     # ideal backbone bond lengths (mean, sd) in A, Engh & Huber style (cf.
@@ -60,7 +60,7 @@ class GeometryDistance:
         '''check if every residues has expected backbone atoms: N, CA, C, O
         return: residues with missing atoms
 
-        Moved to Breaks.missing_residues (qc/breaks.py); this delegate
+        Moved to Breaks.missing_residues (geometry/breaks.py); this delegate
         keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: no tolerance - any residue lacking N/CA/C/O is listed;
@@ -73,7 +73,7 @@ class GeometryDistance:
             ca_break: float = 4.5, cn_strain: float = 1.5):
         '''Localise backbone breaks / chain-continuity failures for one chain.
 
-        Moved to Breaks.chain_continuity (qc/breaks.py); this delegate
+        Moved to Breaks.chain_continuity (geometry/breaks.py); this delegate
         keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: cn_break=2.0 A, C-N above this is a real break (ideal
@@ -90,7 +90,7 @@ class GeometryDistance:
         '''detect bad Ca connections. No large gap
         calculate distance between Ca-Ca atoms
 
-        Moved to Breaks.ca_distances (qc/breaks.py); this delegate keeps
+        Moved to Breaks.ca_distances (geometry/breaks.py); this delegate keeps
         the GeometryDistance API used by Geometry.run().
 
         Cutoff: ideal CA-CA ~3.8 A; Geometry.check() fails when max > 5 A.
@@ -102,7 +102,7 @@ class GeometryDistance:
         """peptide C-N distance
         https://bionumbers.hms.harvard.edu/bionumber.aspx?id=111178&ver=0&trm=peptide&org=
 
-        Moved to Breaks.peptide_distances (qc/breaks.py); this delegate
+        Moved to Breaks.peptide_distances (geometry/breaks.py); this delegate
         keeps the GeometryDistance API used by Geometry.run().
 
         Cutoff: ideal C-N = 1.329 A (peptide bond); chain_continuity()
@@ -147,7 +147,7 @@ class GeometryDistance:
         '''
         steric clashes: non-bonded heavy-atom contacts closer than cutoff (A).
 
-        Moved to Clashes.steric_clashes (qc/clashes.py); this
+        Moved to Clashes.steric_clashes (geometry/clashes.py); this
         delegate keeps the GeometryDistance API used by Geometry.run().
 
         Cutoffs: cutoff=2.4 A fixed distance (heuristic); contacts below
@@ -259,7 +259,7 @@ class GeometryDistance:
                     include_hydrogen: bool = True) -> pd.DataFrame:
         '''MolProbity-style vdW-overlap clashes for this chain.
 
-        Moved to Clashes.vdw_clashes (qc/clashes.py); delegate.
+        Moved to Clashes.vdw_clashes (geometry/clashes.py); delegate.
 
         Cutoff: overlap_cut=0.40 A on vdW overlap (r_i + r_j - d_ij;
         VDW_OVERLAP_CUT, MolProbity definition); radii from VDW_RADII.
@@ -272,7 +272,7 @@ class GeometryDistance:
                         n_atoms: int = None) -> dict:
         '''Clash score (per 1000 atoms) for a vdw_clashes() table.
 
-        Moved to Clashes.vdw_clash_score (qc/clashes.py); delegate.
+        Moved to Clashes.vdw_clash_score (geometry/clashes.py); delegate.
 
         Cutoff: MolProbity clashscore bands (<5 very good, 5-10 acceptable,
         10-20 investigate, >20 poor); Geometry.check() analogue fails above
@@ -283,7 +283,7 @@ class GeometryDistance:
 
 # ===========================================================================
 # MolProbity-style van-der-Waals clash score
-# (implemented in qc/clashes.py; aliases kept for backward compat)
+# (implemented in geometry/clashes.py; aliases kept for backward compat)
 # ===========================================================================
 
 VDW_RADII = Clashes.VDW_RADII
@@ -316,7 +316,7 @@ def vdw_clashes(chain, radii=None, overlap_cut: float = VDW_OVERLAP_CUT,
                 include_hydrogen: bool = True) -> pd.DataFrame:
     '''vdW-overlap clashes for one chain (MolProbity definition).
 
-    Moved to Clashes.vdw_clashes (qc/clashes.py); module-level
+    Moved to Clashes.vdw_clashes (geometry/clashes.py); module-level
     delegate keeps the old function API.
 
     Cutoff: overlap_cut=0.40 A (VDW_OVERLAP_CUT) on overlap =
@@ -330,7 +330,7 @@ def vdw_clashes(chain, radii=None, overlap_cut: float = VDW_OVERLAP_CUT,
 def vdw_clash_score(clashes: pd.DataFrame, chain, n_atoms: int = None):
     '''clashes per 1000 atoms and overlap stats (MolProbity clashscore).
 
-    Moved to Clashes.vdw_clash_score (qc/clashes.py); delegate.
+    Moved to Clashes.vdw_clash_score (geometry/clashes.py); delegate.
 
     Cutoff: clashscore bands <5 very good / 5-10 acceptable / 10-20
     investigate / >20 poor; 0 means no serious overlaps found.

@@ -4,7 +4,7 @@ Covers CA chirality (L/D) directly; bond angles, dihedral angles,
 single-box Ramachandran evaluation, bond-angle Z-scores (Engh & Huber
 style), peptide / main-chain planarity (wwPDB criteria) and residue-type
 aware Ramachandran classification (MolProbity style: Gly / Pro / pre-Pro)
-are collected in qc/torsions.py (Torsions); the methods below delegate
+are collected in geometry/torsions.py (Torsions); the methods below delegate
 to it for backward compatibility (lazy imports - torsions.py imports
 this module at load time). Empirical Top8000-style grids live in
 rama_grid.py.
@@ -13,7 +13,7 @@ CA chiral-volume cutoffs (from wwPDB validation):
     CHIRAL_VOL_L = 2.6    ideal L-amino-acid CA chiral volume (A^3)
     CHIRAL_VOL_MIN = 0.7  below this the CA centre is 'planar'/broken
 The angle cutoffs (IDEAL_ANGLES, Z_OUTLIER_CUT) are defined here and
-re-exported by Torsions (qc/torsions.py).
+re-exported by Torsions (geometry/torsions.py).
 '''
 import numpy as np
 import pandas as pd
@@ -22,7 +22,7 @@ import pandas as pd
 class GeometryAngle:
 
     # ideal backbone bond angles (mean, sd) in degrees, Engh & Huber style;
-    # canonical values re-exported by Torsions (qc/torsions.py)
+    # canonical values re-exported by Torsions (geometry/torsions.py)
     IDEAL_ANGLES = {
         ('N', 'CA', 'C'): (111.2, 2.8),
         ('CA', 'C', 'N'): (116.2, 2.0),
@@ -41,14 +41,14 @@ class GeometryAngle:
         return [r for r in chain if r.id[0] == ' ']
 
     # ------------------------------------------------------------------
-    # delegates to Torsions (qc/torsions.py)
+    # delegates to Torsions (geometry/torsions.py)
     # ------------------------------------------------------------------
 
     @staticmethod
     def dihedral_angle(p0, p1, p2, p3):
         '''dihedral angle (degrees) between four points p0-p1-p2-p3.
 
-        Moved to Torsions.dihedral_angle (qc/torsions.py); delegate keeps
+        Moved to Torsions.dihedral_angle (geometry/torsions.py); delegate keeps
         the GeometryAngle API used by geometry.py and the tests.
         '''
         from .torsions import Torsions  # lazy, avoids import cycle
@@ -58,7 +58,7 @@ class GeometryAngle:
     def bond_angle(a, b, c):
         '''bond angle (degrees) a-b-c around the central atom b.
 
-        Moved to Torsions.bond_angle (qc/torsions.py); delegate.
+        Moved to Torsions.bond_angle (geometry/torsions.py); delegate.
         '''
         from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions.bond_angle(a, b, c)
@@ -70,7 +70,7 @@ class GeometryAngle:
         General allowed regions for L-amino acids (degrees)
         https://jenalib.leibniz-fli.de/ImgLibDoc/glossary/IMAGE_RAMA.htm
 
-        Moved to Torsions.evaluate_ramachandran (qc/torsions.py);
+        Moved to Torsions.evaluate_ramachandran (geometry/torsions.py);
         delegate keeps the API used by geometry.py and the tests.
         phi/psi are expected in degrees; None / NaN -> 'null'
         '''
@@ -80,7 +80,7 @@ class GeometryAngle:
     def bond_angles(self):
         '''raw backbone bond angles (N-CA-C, CA-C-N; ideal ~111 / ~117 deg).
 
-        Moved to Torsions.bond_angles (qc/torsions.py); delegate.
+        Moved to Torsions.bond_angles (geometry/torsions.py); delegate.
         Returns DataFrame(residue, res_pos, angle_N_CA_C, angle_CA_C_N);
         angle_CA_C_N is None at peptide fragment ends.
         '''
@@ -92,7 +92,7 @@ class GeometryAngle:
         with cis/trans conformation (|omega| < 90 deg is cis) and
         single-box Ramachandran label.
 
-        Moved to Torsions.torsion_angles (qc/torsions.py); delegate.
+        Moved to Torsions.torsion_angles (geometry/torsions.py); delegate.
         omega is None at the end of each peptide fragment.
         '''
         from .torsions import Torsions  # lazy, avoids import cycle
@@ -101,7 +101,7 @@ class GeometryAngle:
     def bond_angle_z(self) -> pd.DataFrame:
         '''Z-scores of backbone bond angles vs IDEAL_ANGLES (|Z| > 5 outlier).
 
-        Moved to Torsions.bond_angle_z (qc/torsions.py); delegate.
+        Moved to Torsions.bond_angle_z (geometry/torsions.py); delegate.
         Covers intra-residue N-CA-C plus CA(i)-C(i)-N(i+1) and
         C(i)-N(i+1)-CA(i+1) bridge angles. Returns columns res_pos,
         resname, atoms, observed, ideal, sd, z, outlier.
@@ -112,7 +112,7 @@ class GeometryAngle:
     def peptide_planarity(self) -> pd.DataFrame:
         '''wwPDB planarity per peptide unit (i -> i+1).
 
-        Moved to Torsions.peptide_planarity (qc/torsions.py); delegate.
+        Moved to Torsions.peptide_planarity (geometry/torsions.py); delegate.
         omega_dev vs nearest cis(0)/trans(180), outlier when > 30 deg;
         n_oop_deg of C(i)->N(i+1) out of CA(i)/C(i)/O(i) plane, outlier
         when > 10 deg.
@@ -123,7 +123,7 @@ class GeometryAngle:
     def phi_psi_series(self) -> list:
         '''per-residue phi/psi in degrees with neighbour context.
 
-        Moved to Torsions.phi_psi_series (qc/torsions.py); delegate.
+        Moved to Torsions.phi_psi_series (geometry/torsions.py); delegate.
         Returns list of dicts (res_pos, resname, phi, psi, prev_resname);
         phi/psi are None at chain ends or when backbone atoms are missing.
         '''
@@ -134,7 +134,7 @@ class GeometryAngle:
     def rama_class(phi, psi, resname, prev_resname=None):
         '''Residue-type aware phi/psi label: favoured/allowed/outlier/NA.
 
-        Moved to Torsions.rama_class (qc/torsions.py); delegate keeps the
+        Moved to Torsions.rama_class (geometry/torsions.py); delegate keeps the
         API used by the tests. Analytic boxes only.
         '''
         from .torsions import Torsions  # lazy, avoids import cycle
@@ -143,7 +143,7 @@ class GeometryAngle:
     def rama_molprobity(self) -> dict:
         '''Residue-type aware Ramachandran summary from phi_psi_series().
 
-        Moved to Torsions.rama_molprobity (qc/torsions.py); delegate.
+        Moved to Torsions.rama_molprobity (geometry/torsions.py); delegate.
         Returns analysed count, favoured/allowed/outlier fractions and
         outliers list of (pos, resname, phi, psi).
         '''
@@ -153,8 +153,8 @@ class GeometryAngle:
     def rama_grid_summary(self, grids) -> dict:
         '''Empirical grid-based Ramachandran summary of one chain.
 
-        Moved to Torsions.rama_grid_summary (qc/torsions.py); delegate.
-        grids: RamaGrid instance (structure_profiling/qc/rama_grid.py).
+        Moved to Torsions.rama_grid_summary (geometry/torsions.py); delegate.
+        grids: RamaGrid instance (structure_profiling/geometry/rama_grid.py).
         '''
         from .torsions import Torsions  # lazy, avoids import cycle
         return Torsions(self.chain).rama_grid_summary(grids)

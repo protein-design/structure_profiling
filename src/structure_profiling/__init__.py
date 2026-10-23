@@ -2,7 +2,7 @@ from .common import ProcessJson, ProcessSeq, WriteTmp, ProcessPickle, ProcessFas
 from .predict import Predictor, EvalPred, CalculatePlddt
 from .structure import (Pdb, OpenmmPdbfixer, OpenmmSimulation, timeout,
                         AnalyzeDssp, DSSP_KEYS, DSSP_CODES)
-from .qc import (Breaks, Torsions, Clashes,
+from .geometry import (Breaks, Torsions, Clashes,
                  Geometry, GeometryDistance, GeometryAngle, RamaGrid)
 from .database import (
     Db, InsertDb, QueryDb, DeleteDb, UpdateDb,

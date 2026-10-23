@@ -17,7 +17,7 @@ import pandas as pd
 
 from ..helper import *
 from src.structure_profiling import Pdb, Clashes
-from src.structure_profiling.qc.geometry_distance import GeometryDistance
+from src.structure_profiling.geometry.geometry_distance import GeometryDistance
 
 PDB_6BSX = os.path.join(DATA_DIR, 'PDB', '6BSX_0_A_0.pdb')
 PDB_2OX8 = os.path.join(DATA_DIR, 'PDB', '2OX8_A.pdb')
@@ -139,7 +139,7 @@ class TestClashes(TestCase):
                          self.clashes.vdw_clash_score(vdw))
 
     def test_cutoffs_shared_with_geometry(self):
-        from src.structure_profiling.qc.geometry import Geometry
+        from src.structure_profiling.geometry.geometry import Geometry
         self.assertEqual(Geometry.clash_score_cutoff,
                          Clashes.clash_score_cutoff)
         self.assertEqual(Geometry.severe_clash_distance,

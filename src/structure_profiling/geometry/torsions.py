@@ -52,7 +52,7 @@ class Torsions:
     '''backbone torsion / bond-angle analysis of one Bio.PDB chain.'''
 
     # ideal backbone bond angles (mean, sd) in degrees, Engh & Huber style -
-    # canonical values live in GeometryAngle (qc/geometry_angle.py)
+    # canonical values live in GeometryAngle (geometry/geometry_angle.py)
     IDEAL_ANGLES = GeometryAngle.IDEAL_ANGLES
     Z_OUTLIER_CUT: float = GeometryAngle.Z_OUTLIER_CUT
     CIS_CUT: float = 90.0            # deg, |omega| below this is cis
@@ -409,7 +409,7 @@ class Torsions:
     def rama_grid_summary(self, grids) -> dict:
         '''Empirical grid-based Ramachandran summary of one chain.
 
-        grids: RamaGrid instance (structure_profiling/qc/rama_grid.py).
+        grids: RamaGrid instance (structure_profiling/geometry/rama_grid.py).
         Cutoff: none on fractions (informational; same shape as
         Torsions.rama_molprobity()) - per-residue cuts are favoured 98% /
         allowed 99.95% inside RamaGrid.classify().

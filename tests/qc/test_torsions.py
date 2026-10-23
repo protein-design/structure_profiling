@@ -35,8 +35,8 @@ import pandas as pd
 
 from ..helper import *
 from src.structure_profiling import Pdb, Torsions
-from src.structure_profiling.qc.geometry_angle import GeometryAngle
-from src.structure_profiling.qc.rama_grid import RamaGrid
+from src.structure_profiling.geometry.geometry_angle import GeometryAngle
+from src.structure_profiling.geometry.rama_grid import RamaGrid
 
 PDB_6BSX = os.path.join(DATA_DIR, 'PDB', '6BSX_0_A_0.pdb')
 

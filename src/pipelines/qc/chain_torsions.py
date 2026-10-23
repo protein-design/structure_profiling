@@ -11,7 +11,7 @@ function:
       bond-angle Z-scores, wwPDB peptide / main-chain planarity),
       collected into table chain_torsions (src/sql/qc.sql)
 
-Cutoffs live in qc/torsions.py (Torsions):
+Cutoffs live in geometry/torsions.py (Torsions):
     - Z_OUTLIER_CUT = 5.0     |Z| above this is a bond-angle outlier
     - CIS_CUT = 90 deg        |omega| below this is a cis peptide
     - OMEGA_DEV_CUT = 30 deg  omega dev above this is a planarity outlier

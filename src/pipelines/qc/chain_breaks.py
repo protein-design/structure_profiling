@@ -10,7 +10,7 @@ function:
       backbone atoms, breaks, fragments, strained peptides), collected
       into table chain_breaks (src/sql/qc.sql)
 
-Cutoffs live in qc/breaks.py (Breaks):
+Cutoffs live in geometry/breaks.py (Breaks):
     - cn_break = 2.0 A       C-N above this is a real break (ideal 1.329 A)
     - ca_break = 4.5 A       CA-CA above this is a break (ideal ~3.8 A)
     - cn_strain = 1.5 A      C-N above this but <= cn_break is strained
