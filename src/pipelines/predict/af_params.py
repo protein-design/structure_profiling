@@ -3,7 +3,7 @@
 requirements:
     - table label_chain
 example:
-    - parallel -j8 sp af_params ::: {0..241}
+    - parallel -j8 sp af_params ::: {0..258}
     - sp af_params 0
 function:
     - build params for pdb structure prediction

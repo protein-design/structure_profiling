@@ -3,7 +3,7 @@
 requirements:
     - table label_chain
 example:
-    - parallel -j2 sp af_msa ::: {20..241}
+    - parallel -j4 sp af_msa ::: {0..258}
     - sp af_msa 0
 function:
     - MSA and build *.a3m for structure prediction
@@ -16,6 +16,7 @@ def retrieve(params, meta):
     pdb_group = params['pdb_group']
     params_table_name = params['params_table_name']
     table_name = params['table_name']
+    input_size = params['max_input_size']
     query = f"""
         SELECT a.pdb_id, a.input_id, a.query_faa, a.outdir
         FROM {params_table_name} a
@@ -24,7 +25,7 @@ def retrieve(params, meta):
                 SELECT 1 FROM {table_name} b
                 WHERE a.input_id = b.input_id
             )
-            AND a.input_size <= 900
+            AND a.input_size <= {input_size}
     """
     rows = QueryComplex(params['verbose']).list_data(query)
     print(f"{len(rows)} query files ready...")
@@ -61,6 +62,7 @@ if __name__ == "__main__":
         'overwrite':False,
         'params_table_name': 'af_params',
         'table_name': 'af_msa',
+        'max_input_size': 800,
     })
     add_params(params)
     validate_file_rows('a3m_name', params, meta)

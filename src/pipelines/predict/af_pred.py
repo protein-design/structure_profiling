@@ -20,6 +20,7 @@ if __name__ == "__main__":
         'params_table_name': 'af_params',
         'msa_table_name': 'af_msa',
         'table_name': 'af_pred',
+        'max_input_size': 800,
     })
     
     # a3m files

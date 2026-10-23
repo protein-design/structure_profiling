@@ -27,6 +27,10 @@ class WriteTmp:
         # NB: initialize so that temp_path raises a clean RuntimeError
         # (AttributeError) before __enter__ was called
         self.temp_dir_path = None
+        # move the results from the temporary dir to the destination on exit;
+        # set False before leaving the context to discard failed results
+        # (e.g. af_msa keeps failed MSA results in the ramdisk)
+        self.move_temp = True
 
     def __enter__(self):
         # create temp_path
@@ -41,8 +45,12 @@ class WriteTmp:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        # move to destination
-        self.copy_temp()
+        # move to destination only if requested,
+        # failed results may be kept in the temporary dir (ramdisk)
+        if self.move_temp:
+            self.copy_temp()
+        else:
+            logger.info(f"skip moving results: discard {self.temp_dir_path}")
 
         # delete temp_path
         if self.temp_dir_path and self.temp_dir_path.exists():

@@ -135,10 +135,16 @@ async def run_colabfold_search(input):
                 tmp_row,
                 params,
             )
-            if res == 0:
+            # move the results from the ramdisk to the local disk only if
+            # the MSA succeeded and the *.a3m was delivered into the
+            # temporary dir, otherwise discard the failed results
+            delivered = writer.temp_dir_path / row['a3m_name']
+            if res == 0 and delivered.is_file():
                 meta['msa_good'] += 1
             else:
                 meta['msa_fail'] += 1
+                writer.move_temp = False
+                print(f"Skip moving failed results of {row['input_id']}: MSA failed or no *.a3m delivered.")
     else:
         meta['no_a3m'] += 1
     return row, params, meta
@@ -158,10 +164,16 @@ async def run_colabfold_msa(input):
                 tmp_row,
                 params
             )
-            if res == 0:
+            # move the results from the ramdisk to the local disk only if
+            # the MSA succeeded and the *.a3m was delivered into the
+            # temporary dir, otherwise discard the failed results
+            delivered = writer.temp_dir_path / row['a3m_name']
+            if res == 0 and delivered.is_file():
                 meta['msa_good'] += 1
             else:
                 meta['msa_fail'] += 1
+                writer.move_temp = False
+                print(f"Skip moving failed results of {row['input_id']}: MSA failed or no *.a3m delivered.")
     
             # delete or compress for saving space
             for path in tmp_row['outdir'].iterdir():
@@ -182,6 +194,7 @@ def retrieve_msa(params, meta):
     msa_table = params['msa_table_name']
     pdb_group = params['pdb_group']
     table_name = params['table_name']
+    input_size = params['max_input_size']
     query = f"""
         SELECT a.input_id, a.a3m_name, b.pdb_id, b.outdir
         FROM {msa_table}         a
@@ -192,7 +205,7 @@ def retrieve_msa(params, meta):
                 SELECT * FROM {table_name} c
                 WHERE c.input_id = a.input_id
             )
-            AND b.input_size <= 900
+            AND b.input_size <= {input_size}
     ;"""
     rows = QueryComplex(params['verbose']).list_data(query)
     meta['msa_rows'] = len(rows)
