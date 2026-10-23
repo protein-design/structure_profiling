@@ -65,6 +65,11 @@ class Predictor:
             print('stdout: ', res.stdout)
             print('stderr: ', res.stderr)
             return res.returncode
+        except subprocess.CalledProcessError as e:
+            # report the real subprocess error, not only the command
+            print(f"Execution colafold failed. ERROR={e}")
+            print('stdout: ', e.stdout)
+            print('stderr: ', e.stderr)
         except Exception as e:
             print(f"Execution colafold failed. ERROR={e}")
         return 1
@@ -94,7 +99,17 @@ class Predictor:
             str(params['colabfold_db']),
             str(row['outdir']),
         ]        
-        return Predictor.colabfold_subprocess(params, cmd)
+        status = Predictor.colabfold_subprocess(params, cmd)
+        if status != 0 and params.get('gpu'):
+            # shared GPUs can run out of video memory (cudaMalloc/std::bad_alloc);
+            # retry once without --gpu (slower CPU search)
+            print('Retry colabfold_search without --gpu (CPU search)...')
+            cpu_cmd = list(cmd)
+            if '--gpu' in cpu_cmd:
+                pos = cpu_cmd.index('--gpu')
+                del cpu_cmd[pos:pos + 2]
+            status = Predictor.colabfold_subprocess(params, cpu_cmd)
+        return status
 
     @staticmethod
     def colabfold_batch_msa(row:dict, params:dict):
