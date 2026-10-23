@@ -66,6 +66,7 @@ if __name__ == "__main__":
     })
     add_params(params)
 
+    # TODO: need robust local MSA
     # kill the mmseqs leftovers of interrupted runs (no live
     # colabfold_search driver), keep running MSA jobs untouched
     # killed = Clean.clean_msa(verbose=params['verbose'])
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     # asynchronous functions
     funcs = [
         run_colabfold_msa, # MSA API
-        run_colabfold_search, # local
+        # run_colabfold_search, # local
     ]
     rows = retrieve(params, meta)
     input = [(row, params, meta) for row in rows]
