@@ -16,7 +16,7 @@ from Bio import PDB
 import numpy as np
 from pathlib import Path
 
-from ..structure.clashes import Clashes
+from ..qc import Clashes
 
 class GeometryDistance:
     # canonical clash cutoffs live in Clashes (structure/clashes.py)
