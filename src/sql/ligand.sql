@@ -7,8 +7,10 @@ taken as sites - or an explicit activity site given by site residues -
 and every standard residue of the chain with a heavy atom within
 search_cutoff (default 5.0 A, structure/neighbors.py) is a neighbor.
 Neighbors may be scattered over the sequence (pocket): n_fragments
-counts the sequence-continuous segments among them. The full contact
-table goes to neighbors.csv / neighbors.pkl below output_pdb_dir
+counts the sequence-continuous segments among them. min_dist_residues
+names the residue(s) holding the closest contact with their sequence
+positions (ties kept, e.g. "A/ALA2:4.031,A/ALA102:4.031"). The full
+contact table goes to neighbors.csv / neighbors.pkl below output_pdb_dir
 (neighbor_csv / neighbor_pkl hold the relative paths).
 
 Schema references the shared COMPLEX2 tables (pdb, chain_pdb).
@@ -23,6 +25,7 @@ CREATE TABLE chain_ligand(
     n_neighbor_residues INT,
     n_fragments         INT,
     min_dist            FLOAT,
+    min_dist_residues   VARCHAR(200),
     mean_dist           FLOAT,
     neighbor_residues   TEXT,
     neighbor_csv        VARCHAR(120),

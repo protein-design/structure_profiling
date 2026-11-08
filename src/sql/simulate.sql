@@ -9,6 +9,7 @@ meta_pdb -> chain_pdb -> chain_fixed -> chain_relaxed
          -> combo5 -> combo5_fixed -> combo5_relaxed
          -> chain_clashes -> chain_breaks -> chain_torsions
          -> chain_bonds -> chain_cbeta -> chain_chirality
+         -> equal_seq_rmsd
 
 Schema references the shared COMPLEX2 tables (pdb, combo2..combo5).
 */
@@ -126,6 +127,22 @@ CREATE TABLE combo5_relaxed (
     UNIQUE (combo_id),
     CONSTRAINT fk_combo5_relaxed_pdb FOREIGN KEY (pdb_id)
         REFERENCES pdb(pdb_id) ON DELETE CASCADE
+);
+
+/*
+Pairwise CA-RMSD of equal-sequence chains
+(pipelines/dynamics/equal_seq_rmsd.py).
+Moved from bio_omics src/pipelines/create/simulate.sql,
+same schema as the existing COMPLEX2 table.
+*/
+DROP TABLE IF EXISTS equal_seq_rmsd;
+CREATE TABLE equal_seq_rmsd(
+    chain_id        VARCHAR(10),
+    equal_chain_id  VARCHAR(10),
+    rmsd            FLOAT NOT NULL,
+    chain_pdb       VARCHAR(60),
+    equal_chain_pdb VARCHAR(60),
+    UNIQUE(chain_id, equal_chain_id)
 );
 
 

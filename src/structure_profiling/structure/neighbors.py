@@ -9,7 +9,8 @@ scattered over the sequence - so run() also reports the number of
 sequence-continuous fragments they form (n_fragments).
 
 search() returns the per-residue contact table (chain_no, resseq,
-resname, min_dist, n_contacts, closest atom pair) exported by
+resname, min_dist, n_contacts, closest atom pair plus the site
+residue name / position it is nearest to) exported by
 pipelines/dynamics/chain_ligand.py to csv / pickle next to the chain
 PDB; run() returns the summary exported to the SQL table chain_ligand.
 
@@ -40,7 +41,8 @@ class Neighbors:
     # columns of the per-residue contact table returned by search()
     # (run() prepends the site label column in front of these)
     NEIGHBOR_COLUMNS = ['chain_no', 'resseq', 'icode', 'resname',
-        'min_dist', 'n_contacts', 'atom', 'site_atom']
+        'min_dist', 'n_contacts', 'atom', 'site_resname', 'site_resseq',
+        'site_atom']
 
     def __init__(self, structure, chain_no:str=None):
         '''
@@ -180,15 +182,20 @@ class Neighbors:
         atom and the exact distances are recomputed on the candidates.
         Hydrogens are ignored on both sides.
 
-        returns DataFrame(chain_no, resseq, icode, resname,
-        min_dist, n_contacts, atom, site_atom) sorted by residue; the
-        site label column is prepended by run() when sites are combined.
+        returns DataFrame(chain_no, resseq, icode, resname, min_dist,
+        n_contacts, atom, site_resname, site_resseq, site_atom) sorted
+        by residue; site_resname / site_resseq identify the site
+        residue nearest to that neighbor (with its position), the site
+        label column is prepended by run() when sites are combined.
         '''
         cutoff = self.search_cutoff if cutoff is None else cutoff
         site_atoms = [a for a in site_atoms if a.element != 'H']
         if not self.structure or not site_atoms \
                 or not self.protein_atoms():
             return pd.DataFrame(columns=self.NEIGHBOR_COLUMNS)
+        site_res = site_atoms[0].get_parent()
+        site_resname = site_res.resname.strip()
+        site_resseq = site_res.id[1]
 
         # KD-tree candidates per site atom, grouped by residue
         ns = self.neighbor_search()
@@ -215,6 +222,8 @@ class Neighbors:
                 'min_dist': round(float(dist[ri, si]), 3),
                 'n_contacts': int((dist.min(axis=1) <= cutoff).sum()),
                 'atom': res_atoms[ri].name,
+                'site_resname': site_resname,
+                'site_resseq': site_resseq,
                 'site_atom': site_names[si],
             })
         df = pd.DataFrame(rows, columns=self.NEIGHBOR_COLUMNS)
@@ -258,9 +267,12 @@ class Neighbors:
         sequence-continuous segments they form.
 
         Returns a dict of summary statistics (n_sites, ligand_names,
-        n_neighbor_residues, n_fragments, min_dist, mean_dist,
-        neighbor_residues); the full contact table is nested under
-        'neighbors' when keep_details.
+        n_neighbor_residues, n_fragments, min_dist, min_dist_residues,
+        mean_dist, neighbor_residues); min_dist_residues names the
+        residue(s) holding the closest contact with their sequence
+        positions (ties kept, e.g. "A/ALA2:4.031,A/ALA102:4.031"); the
+        full contact table is nested under 'neighbors' when
+        keep_details.
         '''
         cutoff = self.search_cutoff if cutoff is None else cutoff
         if site_residues:
@@ -287,6 +299,15 @@ class Neighbors:
         # unique neighbor residues over all sites (pocket view)
         uniq = neighbors.drop_duplicates(['chain_no', 'resseq', 'icode']) \
             if not neighbors.empty else neighbors
+        # residues holding the closest contact, with their sequence
+        # positions - ties are kept (symmetric pockets have several)
+        min_residues = ''
+        if not uniq.empty:
+            dmin = uniq['min_dist'].min()
+            min_residues = ','.join(
+                f"{r.chain_no}/{r.resname}{r.resseq}"
+                f"{r.icode if r.icode else ''}:{r.min_dist}"
+                for r in uniq.itertuples() if r.min_dist == dmin)
         info = {
             'n_sites': len(sites),
             'ligand_names': ','.join(dict.fromkeys(
@@ -296,6 +317,7 @@ class Neighbors:
             'n_fragments': self.fragments(uniq),
             'min_dist': round(float(uniq['min_dist'].min()), 3)
                 if not uniq.empty else None,
+            'min_dist_residues': min_residues,
             'mean_dist': round(float(uniq['min_dist'].mean()), 3)
                 if not uniq.empty else None,
             'neighbor_residues': ','.join(

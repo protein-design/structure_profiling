@@ -24,3 +24,7 @@ parallel -j8 ${APP} chain_cbeta ::: {0..258}
 
 # CA-chirality QC of chains in chain_pdb
 parallel -j8 ${APP} chain_chirality ::: {0..258}
+
+# pairwise CA-RMSD of equal-sequence chain pairs in chain_pdb
+# (src/pipelines/dynamics/equal_seq_rmsd.py)
+parallel -j8 ${APP} equal_seq_rmsd ::: {0..258}

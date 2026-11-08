@@ -42,6 +42,9 @@ pool = {
     # ligand / binding-site neighborhood
     'chain_ligand': 'dynamics.chain_ligand',
 
+    # pairwise CA-RMSD of equal-sequence chains (chain_pdb)
+    'equal_seq_rmsd': 'dynamics.equal_seq_rmsd',
+
     # predict (alphafold via colabfold)
     'af_params': 'predict.af_params',
     'af_msa': 'predict.af_msa',

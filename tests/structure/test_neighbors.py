@@ -91,8 +91,12 @@ class TestNeighborsSearch(TestCase):
         df = self.nb.search(self.site[1])
         self.assertEqual(list(df.columns),
                          ['chain_no', 'resseq', 'icode', 'resname',
-                          'min_dist', 'n_contacts', 'atom', 'site_atom'])
+                          'min_dist', 'n_contacts', 'atom',
+                          'site_resname', 'site_resseq', 'site_atom'])
         self.assertEqual(df['resseq'].tolist(), [2, 3, 102, 103])
+        # the site residue (name + position) on every row
+        self.assertEqual(df['site_resname'].unique().tolist(), ['LIG'])
+        self.assertEqual(df['site_resseq'].unique().tolist(), [300])
 
     def test_exact_distances_and_contacts(self):
         df = self.nb.search(self.site[1])
@@ -101,6 +105,8 @@ class TestNeighborsSearch(TestCase):
         self.assertEqual(row['resname'], 'ALA')
         self.assertEqual(row['min_dist'], round(MIN_DIST_2, 3))
         self.assertEqual(row['atom'], 'CB')
+        self.assertEqual(row['site_resname'], 'LIG')
+        self.assertEqual(row['site_resseq'], 300)
         self.assertEqual(row['site_atom'], 'C1')
         # N, CA, C, CB within 5.0 A (O is at 5.669 A)
         self.assertEqual(row['n_contacts'], 4)
@@ -135,6 +141,8 @@ class TestNeighborsRun(TestCase):
         self.assertEqual(info['n_fragments'], 2)
         self.assertAlmostEqual(info['min_dist'], MIN_DIST_2, places=3)
         self.assertAlmostEqual(info['mean_dist'], 4.45, places=2)
+        self.assertEqual(info['min_dist_residues'],
+                         'A/ALA2:4.031,A/ALA102:4.031')
         self.assertEqual(info['neighbor_residues'],
                          'A/ALA2:4.031,A/ALA3:4.867,'
                          'A/ALA102:4.031,A/ALA103:4.867')
@@ -160,6 +168,8 @@ class TestNeighborsRun(TestCase):
         self.assertEqual(info['n_fragments'], 2)    # residues 1 and 3
         self.assertAlmostEqual(info['min_dist'], round(MIN_DIST_SITE, 3),
                                places=3)
+        self.assertEqual(info['min_dist_residues'],
+                         'A/ALA1:1.844,A/ALA3:1.844')
 
     def test_run_without_ligands(self):
         p = Pdb(PDB_2OX8, None, False)
@@ -168,6 +178,7 @@ class TestNeighborsRun(TestCase):
         self.assertEqual(info['n_neighbor_residues'], 0)
         self.assertEqual(info['n_fragments'], 0)
         self.assertIsNone(info['min_dist'])
+        self.assertEqual(info['min_dist_residues'], '')
         self.assertEqual(info['neighbor_residues'], '')
 
     def test_run_without_structure(self):

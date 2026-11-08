@@ -11,7 +11,7 @@ chains/combos and QC screening of predicted/backbone geometry.
 ## Layout
 
 ```
-src/sql/                 MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, chain_ligand, af_params, af_msa, af_pred, af_summary, af_plddt, af_rmsd, af_tmalign)
+src/sql/                 MySQL schemas (chain_dssp, chain_fixed, chain_relaxed, combo2..5, combo*_fixed, combo*_relaxed, chain_clashes, chain_ligand, equal_seq_rmsd, af_params, af_msa, af_pred, af_summary, af_plddt, af_rmsd, af_tmalign)
 src/
 ├── helper.py            shared pipeline utilities (params, add_params, header, footer)
 ├── app/main.py          `sp` CLI: runs a pipeline as a module
@@ -27,7 +27,8 @@ src/
 │       ├── chain_relaxed.py          relax one chain (OpenMM)
 │       ├── func_relaxed.py           shared relax helpers (combo2..5 reuse it)
 │       ├── combo2..5_relaxed.py      relax chain combos
-│       └── chain_ligand.py           ligand / binding-site residue neighborhoods per chain
+│       ├── chain_ligand.py           ligand / binding-site residue neighborhoods per chain
+│       └── equal_seq_rmsd.py         pairwise CA-RMSD of equal-sequence chains
 │   ├── qc/
 │   │   ├── chain_clashes.py           steric / MolProbity vdW clash metrics per chain
 │   │   ├── chain_breaks.py            chain continuity (missing atoms, breaks, strain)
@@ -90,6 +91,7 @@ sp combo2_fixed 0
 sp chain_relaxed 0
 sp chain_clashes 0
 sp chain_ligand 0
+sp equal_seq_rmsd 0
 sp chain_breaks 0
 sp chain_fixed_breaks 0
 sp af_params 0
@@ -118,6 +120,11 @@ output feeds the `combo2..5_fixed` / `combo2..5_relaxed` pipelines. `chain_ligan
 also reads those original complex PDBs from `rawdata_dir` (sites and neighbor
 candidates are restricted to the chain); the split chain PDB files carry no
 HETATM, since `to_chain_pdb` exports protein-only chains for dssp/fix/relax.
+
+The `equal_seq_rmsd` pipeline pairs chains with identical sequences in
+`pdb_chain_seq` (restricted to `label_chain` via `meta_pdb`) and writes
+their CA-RMSD to the `equal_seq_rmsd` table; the input tables and the
+chain PDB files (`chain_pdb`) are all built by bio_omics.
 
 The `af_*` predict pipelines need `label_chain` / `label_complex` and the
 `pdb_chain_seq` fasta files (both filled by bio_omics, which also creates the

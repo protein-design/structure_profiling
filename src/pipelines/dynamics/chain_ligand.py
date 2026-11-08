@@ -18,9 +18,10 @@ function:
       search_cutoff of a site is a neighbor - neighbors may or may not
       be continuous in the chain sequence (pocket), n_fragments counts
       the sequence-continuous segments. Summary -> table chain_ligand
-      (src/sql/ligand.sql), full contact table -> neighbors.csv /
-      neighbors.pkl below output_pdb_dir (relative paths recorded in
-      neighbor_csv / neighbor_pkl).
+      (src/sql/ligand.sql, incl. min_dist_residues: the residue(s) at
+      min_dist with their sequence positions), full contact table ->
+      neighbors.csv / neighbors.pkl below output_pdb_dir (relative
+      paths recorded in neighbor_csv / neighbor_pkl).
 
 Cutoffs live in structure/neighbors.py (Neighbors):
     - search_cutoff = 5.0 A   heavy-atom distance flagged as a contact
@@ -138,7 +139,7 @@ def export_neighbors(info, outdir, params, meta):
 def run(rows, params, meta):
     cols = TABLE_COLUMNS[params['table_name']]
     site_residues = parse_site_residues(params.get('site_residues'))
-    for row in rows:
+    for row in rows[:2]:
         try:
             info = ligand_neighbors(row['pdb_file'], row.get('chain_no'),
                 cutoff=params.get('search_cutoff'),

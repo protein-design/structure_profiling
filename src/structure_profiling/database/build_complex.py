@@ -38,6 +38,10 @@ TABLE_COLUMNS = {
         'original_energy', 'relaxed_energy',],
     'combo5_relaxed': ['pdb_id', 'combo_id', 'relaxed_pdb',
         'original_energy', 'relaxed_energy',],
+    # pairwise CA-RMSD of equal-sequence chains
+    # (pipelines/dynamics/equal_seq_rmsd.py, src/sql/simulate.sql)
+    'equal_seq_rmsd': ['chain_id', 'equal_chain_id', 'rmsd',
+        'chain_pdb', 'equal_chain_pdb',],
     # (the retired monolithic pdb_qc / pdb_relaxed_qc tables have no
     # entry; original and relaxed structures are covered by the chain_*
     # qc tables below)
@@ -75,8 +79,9 @@ TABLE_COLUMNS = {
     # ligand / binding-site neighborhood
     # (pipelines/dynamics/chain_ligand.py, src/sql/ligand.sql)
     'chain_ligand': ['pdb_id', 'chain_id', 'n_sites', 'ligand_names',
-        'n_neighbor_residues', 'n_fragments', 'min_dist', 'mean_dist',
-        'neighbor_residues', 'neighbor_csv', 'neighbor_pkl'],
+        'n_neighbor_residues', 'n_fragments', 'min_dist',
+        'min_dist_residues', 'mean_dist', 'neighbor_residues',
+        'neighbor_csv', 'neighbor_pkl'],
     # predict (pipelines/predict, src/sql/predict.sql)
     'af_params': ['pdb_id', 'input_id', 'input_table_name', 'input_col_name',
         'input_size', 'group_no', 'combo', 'categories', 'query_faa', 'outdir',],

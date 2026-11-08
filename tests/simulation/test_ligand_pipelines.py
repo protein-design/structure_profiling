@@ -101,6 +101,8 @@ class TestLigandPipelineRun(TestCase):
             self.assertEqual(rec['chain_id'], 'XXXX_A')
             self.assertEqual(rec['n_sites'], 1)
             self.assertEqual(rec['n_neighbor_residues'], 4)
+            self.assertEqual(rec['min_dist_residues'],
+                             'A/ALA2:4.031,A/ALA102:4.031')
             self.assertEqual(rec['n_fragments'], 2)
             self.assertEqual(rec['ligand_names'], 'LIG')
             # exports are written below output_pdb_dir and recorded
@@ -150,8 +152,9 @@ class TestLigandPipelineWiring(TestCase):
         self.assertEqual(TABLE_COLUMNS['chain_ligand'],
                          ['pdb_id', 'chain_id', 'n_sites', 'ligand_names',
                           'n_neighbor_residues', 'n_fragments',
-                          'min_dist', 'mean_dist', 'neighbor_residues',
-                          'neighbor_csv', 'neighbor_pkl'])
+                          'min_dist', 'min_dist_residues', 'mean_dist',
+                          'neighbor_residues', 'neighbor_csv',
+                          'neighbor_pkl'])
 
     def test_main_pool_registers_chain_ligand(self):
         from src.app.main import pool
